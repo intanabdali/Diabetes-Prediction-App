@@ -84,8 +84,35 @@ def input_row_as_list(P, G, BP, ST, I, BMI, DPF, AGE):
 
 
 # =============== UI ===============
+# =============== UI ===============
 st.set_page_config(page_title="Diabetes Prediction", page_icon="🩺", layout="centered")
-st.title("🩺 Diabetes Prediction Web App")
+
+# PWA Support - Makes app installable on mobile
+import streamlit.components.v1 as components
+
+def add_pwa_support():
+    pwa_html = """
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DiabetesAI">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker failed'));
+        }
+    </script>
+    """
+    components.html(pwa_html, height=0)
+
+add_pwa_support()
+
+st.title("🩺 Diabetes Prediction Web App")  # ← This line stays
 
 with st.sidebar:
     st.title("Navigation")
@@ -285,4 +312,5 @@ else:
         *Disclaimer: For educational/demo use only. Not medical advice.*
         """
     )
+
 
