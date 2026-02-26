@@ -90,28 +90,128 @@ st.set_page_config(page_title="Diabetes Prediction", page_icon="🩺", layout="c
 # PWA Support - Makes app installable on mobile
 import streamlit.components.v1 as components
 
+# Add this UPDATED PWA code to your diabetes_prediction_web_app.py
+# Replace the old add_pwa_support() function with this one
+
+import streamlit.components.v1 as components
+
 def add_pwa_support():
-    pwa_html = """
-    <link rel="manifest" href="manifest.json">
+    """Enhanced PWA support with embedded manifest"""
+    
+    # Embed manifest as data URI to avoid file serving issues
+    manifest_content = """{
+  "name": "Diabetes Prediction App",
+  "short_name": "DiabetesAI",
+  "description": "AI diabetes prediction",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}"""
+    
+    # Create manifest as data URI
+    import base64
+    import json
+    manifest_b64 = base64.b64encode(manifest_content.encode()).decode()
+    
+    pwa_html = f"""
+    <link rel="manifest" href="data:application/json;base64,{manifest_b64}">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DiabetesAI">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker failed'));
-        }
+    // Show install prompt
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {{
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show custom install button
+      const installDiv = document.createElement('div');
+      installDiv.id = 'installPrompt';
+      installDiv.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #667eea;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 9999;
+        font-family: sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
+      
+      installDiv.innerHTML = `
+        📱 Install this app!
+        <button onclick="installApp()" style="
+          background: white;
+          color: #667eea;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+        ">Install</button>
+        <button onclick="dismissPrompt()" style="
+          background: transparent;
+          color: white;
+          border: 1px solid white;
+          padding: 8px 15px;
+          border-radius: 5px;
+          cursor: pointer;
+        ">×</button>
+      `;
+      
+      document.body.appendChild(installDiv);
+    }});
+    
+    window.installApp = function() {{
+      const installDiv = document.getElementById('installPrompt');
+      if (installDiv) installDiv.remove();
+      
+      if (deferredPrompt) {{
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {{
+          if (choiceResult.outcome === 'accepted') {{
+            console.log('App installed!');
+          }}
+          deferredPrompt = null;
+        }});
+      }}
+    }};
+    
+    window.dismissPrompt = function() {{
+      const installDiv = document.getElementById('installPrompt');
+      if (installDiv) installDiv.remove();
+    }};
     </script>
     """
+    
     components.html(pwa_html, height=0)
-
-add_pwa_support()
-
+    
 st.title("🩺 Diabetes Prediction Web App")  # ← This line stays
 
 with st.sidebar:
@@ -312,5 +412,6 @@ else:
         *Disclaimer: For educational/demo use only. Not medical advice.*
         """
     )
+
 
 
