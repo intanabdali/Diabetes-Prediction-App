@@ -90,15 +90,15 @@ st.set_page_config(page_title="Diabetes Prediction", page_icon="🩺", layout="c
 # PWA Support - Makes app installable on mobile
 import streamlit.components.v1 as components
 
-# Add this UPDATED PWA code to your diabetes_prediction_web_app.py
-# Replace the old add_pwa_support() function with this one
+# UPDATED PWA CODE - Replace your add_pwa_support() function with this
 
 import streamlit.components.v1 as components
+import base64
 
 def add_pwa_support():
-    """Enhanced PWA support with embedded manifest"""
+    """Enhanced PWA support with custom favicon"""
     
-    # Embed manifest as data URI to avoid file serving issues
+    # Manifest embedded as data URI
     manifest_content = """{
   "name": "Diabetes Prediction App",
   "short_name": "DiabetesAI",
@@ -111,103 +111,170 @@ def add_pwa_support():
     {
       "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }"""
     
-    # Create manifest as data URI
-    import base64
-    import json
     manifest_b64 = base64.b64encode(manifest_content.encode()).decode()
     
     pwa_html = f"""
+    <!-- Override Streamlit's default favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
+    <link rel="shortcut icon" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/json;base64,{manifest_b64}">
+    
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DiabetesAI">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="DiabetesAI">
+    
+    <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
+    <!-- Open Graph / Social Media -->
+    <meta property="og:image" content="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    
     <script>
-    // Show install prompt
-    let deferredPrompt;
-    
-    window.addEventListener('beforeinstallprompt', (e) => {{
-      e.preventDefault();
-      deferredPrompt = e;
-      
-      // Show custom install button
-      const installDiv = document.createElement('div');
-      installDiv.id = 'installPrompt';
-      installDiv.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #667eea;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 9999;
-        font-family: sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      `;
-      
-      installDiv.innerHTML = `
-        📱 Install this app!
-        <button onclick="installApp()" style="
-          background: white;
-          color: #667eea;
-          border: none;
-          padding: 8px 15px;
-          border-radius: 5px;
-          cursor: pointer;
-          font-weight: bold;
-        ">Install</button>
-        <button onclick="dismissPrompt()" style="
-          background: transparent;
-          color: white;
-          border: 1px solid white;
-          padding: 8px 15px;
-          border-radius: 5px;
-          cursor: pointer;
-        ">×</button>
-      `;
-      
-      document.body.appendChild(installDiv);
-    }});
-    
-    window.installApp = function() {{
-      const installDiv = document.getElementById('installPrompt');
-      if (installDiv) installDiv.remove();
-      
-      if (deferredPrompt) {{
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {{
-          if (choiceResult.outcome === 'accepted') {{
-            console.log('App installed!');
-          }}
-          deferredPrompt = null;
+    // Force icon refresh
+    (function() {{
+        // Remove any existing Streamlit favicons
+        const existingIcons = document.querySelectorAll('link[rel*="icon"]');
+        existingIcons.forEach(icon => {{
+            if (icon.href.includes('streamlit')) {{
+                icon.remove();
+            }}
         }});
-      }}
-    }};
-    
-    window.dismissPrompt = function() {{
-      const installDiv = document.getElementById('installPrompt');
-      if (installDiv) installDiv.remove();
-    }};
+        
+        // Install prompt handler
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {{
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Create install button
+            const installDiv = document.createElement('div');
+            installDiv.id = 'installPrompt';
+            installDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+                z-index: 99999;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                animation: slideUp 0.3s ease-out;
+            `;
+            
+            installDiv.innerHTML = `
+                <div style="font-size: 24px;">📱</div>
+                <div>
+                    <div style="font-weight: bold; font-size: 14px;">Install Diabetes AI</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Quick access from home screen</div>
+                </div>
+                <button onclick="installApp()" style="
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 14px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                ">Install</button>
+                <button onclick="dismissPrompt()" style="
+                    background: transparent;
+                    color: white;
+                    border: 2px solid white;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                ">×</button>
+            `;
+            
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {{
+                    from {{
+                        transform: translateX(-50%) translateY(100px);
+                        opacity: 0;
+                    }}
+                    to {{
+                        transform: translateX(-50%) translateY(0);
+                        opacity: 1;
+                    }}
+                }}
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(installDiv);
+        }});
+        
+        window.installApp = function() {{
+            const installDiv = document.getElementById('installPrompt');
+            if (installDiv) installDiv.remove();
+            
+            if (deferredPrompt) {{
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {{
+                    if (choiceResult.outcome === 'accepted') {{
+                        console.log('App installed successfully!');
+                    }}
+                    deferredPrompt = null;
+                }});
+            }}
+        }};
+        
+        window.dismissPrompt = function() {{
+            const installDiv = document.getElementById('installPrompt');
+            if (installDiv) {{
+                installDiv.style.animation = 'slideDown 0.3s ease-out';
+                setTimeout(() => installDiv.remove(), 300);
+            }}
+        }};
+    }})();
     </script>
+    
+    <style>
+    @keyframes slideDown {{
+        to {{
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+        }}
+    }}
+    </style>
     """
     
     components.html(pwa_html, height=0)
@@ -412,6 +479,7 @@ else:
         *Disclaimer: For educational/demo use only. Not medical advice.*
         """
     )
+
 
 
 
