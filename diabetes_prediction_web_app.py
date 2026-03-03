@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Diabetes Prediction Web App (Streamlit)
-- Prediction (with proper scaling if scaler available)
-- Patient-level advanced visualizations
-- Dataset exploration (heatmap + feature distributions)
+Health Risk Prediction Web App (Streamlit)
+- Multi-factor risk assessment
+- Clinical history integration
+- Advanced visualizations
 """
 
 import os
@@ -12,474 +12,313 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
 
 # =============== App Constants ===============
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_MODEL_PATH = os.path.join(APP_DIR, "trained_model.sav")
 DEFAULT_SCALER_PATH = os.path.join(APP_DIR, "scaler.sav")
+DEFAULT_GENDER_ENCODER_PATH = os.path.join(APP_DIR, "gender_encoder.sav")
 DEFAULT_DATA_PATH = os.path.join(APP_DIR, "diabetes.csv")
 
 FEATURE_NAMES = [
-    "Pregnancies", "Glucose", "BloodPressure", "SkinThickness",
-    "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"
+    "Age", "Gender", "Pulse Rate", "Systolic BP", "Diastolic BP",
+    "Glucose", "Height", "Weight", "BMI",
+    "Family Diabetes", "Hypertensive", "Family Hypertension",
+    "Cardiovascular Disease", "Stroke"
 ]
 
 # =============== Utils ===============
 @st.cache_resource
-def load_model_and_scaler(model_path: str = DEFAULT_MODEL_PATH, scaler_path: str = DEFAULT_SCALER_PATH):
-    notes = []
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found at: {model_path}")
+def load_model_and_encoders():
+    """Load model, scaler, and gender encoder"""
+    model = pickle.load(open(DEFAULT_MODEL_PATH, "rb"))
+    scaler = pickle.load(open(DEFAULT_SCALER_PATH, "rb"))
+    gender_encoder = pickle.load(open(DEFAULT_GENDER_ENCODER_PATH, "rb"))
+    return model, scaler, gender_encoder
 
-    obj = pickle.load(open(model_path, "rb"))
-    model, scaler = None, None
-
-    if isinstance(obj, dict) and ("model" in obj):
-        model = obj["model"]
-        scaler = obj.get("scaler", None)
-        if scaler is None:
-            notes.append("Model file loaded (dict), but no scaler inside. Will try separate scaler.sav.")
+def predict_risk(model, scaler, gender_encoder, inputs_dict):
+    """Make risk prediction"""
+    
+    # Convert gender to numeric
+    gender_encoded = 1 if inputs_dict['gender'] == 'Male' else 0
+    
+    # Create feature array
+    features = [
+        inputs_dict['age'],
+        gender_encoded,
+        inputs_dict['pulse_rate'],
+        inputs_dict['systolic_bp'],
+        inputs_dict['diastolic_bp'],
+        inputs_dict['glucose'],
+        inputs_dict['height'],
+        inputs_dict['weight'],
+        inputs_dict['bmi'],
+        inputs_dict['family_diabetes'],
+        inputs_dict['hypertensive'],
+        inputs_dict['family_hypertension'],
+        inputs_dict['cardiovascular'],
+        inputs_dict['stroke']
+    ]
+    
+    # Convert to array and scale
+    x = np.array(features).reshape(1, -1)
+    x_scaled = scaler.transform(x)
+    
+    # Predict
+    prediction = model.predict(x_scaled)[0]
+    probability = model.predict_proba(x_scaled)[0]
+    
+    # Get risk percentage
+    risk_percentage = probability[1] * 100  # Probability of diabetic
+    
+    # Determine risk level
+    if risk_percentage < 30:
+        risk_level = "LOW"
+        risk_color = "green"
+    elif risk_percentage < 60:
+        risk_level = "MODERATE"
+        risk_color = "orange"
     else:
-        model = obj
-        notes.append("Model file loaded (plain). Will try separate scaler.sav.")
-
-    if scaler is None and os.path.exists(scaler_path):
-        scaler = pickle.load(open(scaler_path, "rb"))
-        notes.append("Loaded scaler from scaler.sav.")
-
-    if scaler is None:
-        notes.append("⚠️ No scaler found. Prediction will use raw inputs (may reduce accuracy).")
-
-    return model, scaler, notes
-
-
-@st.cache_data
-def load_data(default_path: str = DEFAULT_DATA_PATH, uploaded_file=None) -> pd.DataFrame:
-    if uploaded_file is not None:
-        return pd.read_csv(uploaded_file)
-    if os.path.exists(default_path):
-        return pd.read_csv(default_path)
-    raise FileNotFoundError("Could not find 'diabetes.csv'. Upload it or place it next to this script.")
-
-
-def predict_diabetes(model, scaler, inputs_list):
-    x = np.asarray(inputs_list, dtype=float).reshape(1, -1)
-    if scaler is not None:
-        x = scaler.transform(x)
-
-    y_pred = model.predict(x)
-    proba = None
-    if hasattr(model, "predict_proba"):
-        try:
-            proba = model.predict_proba(x)[0]
-        except Exception:
-            proba = None
-
-    label = '✅ The person is not diabetic' if int(y_pred[0]) == 0 else '⚠️ The person is diabetic'
-    return label, int(y_pred[0]), proba
-
-
-def input_row_as_list(P, G, BP, ST, I, BMI, DPF, AGE):
-    return [P, G, BP, ST, I, BMI, DPF, AGE]
-
-
-# =============== UI ===============
-# =============== UI ===============
-st.set_page_config(page_title="Diabetes Prediction", page_icon="🩺", layout="centered")
-
-# PWA Support - Makes app installable on mobile
-import streamlit.components.v1 as components
-
-# UPDATED PWA CODE - Replace your add_pwa_support() function with this
-
-import streamlit.components.v1 as components
-import base64
-
-def add_pwa_support():
-    """Enhanced PWA support with custom favicon"""
+        risk_level = "HIGH"
+        risk_color = "red"
     
-    # Manifest embedded as data URI
-    manifest_content = """{
-  "name": "Diabetes Prediction App",
-  "short_name": "DiabetesAI",
-  "description": "AI diabetes prediction",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#667eea",
-  "icons": [
-    {
-      "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+    # Confidence (how sure the model is)
+    confidence = max(probability) * 100
+    
+    # Validation (if confidence is high enough)
+    validation = "Passed" if confidence > 70 else "Review Needed"
+    
+    return {
+        'prediction': prediction,
+        'risk_percentage': risk_percentage,
+        'risk_level': risk_level,
+        'risk_color': risk_color,
+        'confidence': confidence,
+        'validation': validation,
+        'probability': probability
     }
-  ]
-}"""
-    
-    manifest_b64 = base64.b64encode(manifest_content.encode()).decode()
-    
-    pwa_html = f"""
-    <!-- Override Streamlit's default favicon -->
-    <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
-    <link rel="shortcut icon" href="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-192.png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/json;base64,{manifest_b64}">
-    
-    <!-- PWA Meta Tags -->
+
+# =============== PWA Support ===============
+def add_pwa_support():
+    """Add PWA support for mobile installation"""
+    pwa_html = """
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="DiabetesAI">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="DiabetesAI">
-    
-    <!-- Viewport -->
+    <meta name="apple-mobile-web-app-title" content="HealthRisk">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- Open Graph / Social Media -->
-    <meta property="og:image" content="https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/icon-512.png">
-    <meta property="og:image:width" content="512">
-    <meta property="og:image:height" content="512">
-    
-    <script>
-    // Force icon refresh
-    (function() {{
-        // Remove any existing Streamlit favicons
-        const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-        existingIcons.forEach(icon => {{
-            if (icon.href.includes('streamlit')) {{
-                icon.remove();
-            }}
-        }});
-        
-        // Install prompt handler
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {{
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Create install button
-            const installDiv = document.createElement('div');
-            installDiv.id = 'installPrompt';
-            installDiv.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 12px;
-                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-                z-index: 99999;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                animation: slideUp 0.3s ease-out;
-            `;
-            
-            installDiv.innerHTML = `
-                <div style="font-size: 24px;">📱</div>
-                <div>
-                    <div style="font-weight: bold; font-size: 14px;">Install Diabetes AI</div>
-                    <div style="font-size: 12px; opacity: 0.9;">Quick access from home screen</div>
-                </div>
-                <button onclick="installApp()" style="
-                    background: white;
-                    color: #667eea;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    font-size: 14px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                ">Install</button>
-                <button onclick="dismissPrompt()" style="
-                    background: transparent;
-                    color: white;
-                    border: 2px solid white;
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    font-size: 18px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 0;
-                ">×</button>
-            `;
-            
-            // Add animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideUp {{
-                    from {{
-                        transform: translateX(-50%) translateY(100px);
-                        opacity: 0;
-                    }}
-                    to {{
-                        transform: translateX(-50%) translateY(0);
-                        opacity: 1;
-                    }}
-                }}
-            `;
-            document.head.appendChild(style);
-            
-            document.body.appendChild(installDiv);
-        }});
-        
-        window.installApp = function() {{
-            const installDiv = document.getElementById('installPrompt');
-            if (installDiv) installDiv.remove();
-            
-            if (deferredPrompt) {{
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {{
-                    if (choiceResult.outcome === 'accepted') {{
-                        console.log('App installed successfully!');
-                    }}
-                    deferredPrompt = null;
-                }});
-            }}
-        }};
-        
-        window.dismissPrompt = function() {{
-            const installDiv = document.getElementById('installPrompt');
-            if (installDiv) {{
-                installDiv.style.animation = 'slideDown 0.3s ease-out';
-                setTimeout(() => installDiv.remove(), 300);
-            }}
-        }};
-    }})();
-    </script>
-    
-    <style>
-    @keyframes slideDown {{
-        to {{
-            transform: translateX(-50%) translateY(100px);
-            opacity: 0;
-        }}
-    }}
-    </style>
     """
-    
     components.html(pwa_html, height=0)
-    
-st.title("🩺 Diabetes Prediction Web App")  # ← This line stays
 
-with st.sidebar:
-    st.title("Navigation")
-    page = st.radio("Go to", ["Prediction", "Data Visualizations", "About"])
+# =============== UI ===============
+st.set_page_config(
+    page_title="Health Risk Assessment",
+    page_icon="🏥",
+    layout="centered"
+)
 
-# ===== Load model (once) =====
+add_pwa_support()
+
+st.title("🏥 Health Risk Assessment")
+
+# Load model
 try:
-    model, scaler, load_notes = load_model_and_scaler(DEFAULT_MODEL_PATH, DEFAULT_SCALER_PATH)
+    model, scaler, gender_encoder = load_model_and_encoders()
 except Exception as e:
     st.error(f"Error loading model: {e}")
     st.stop()
 
-if load_notes:
-    for n in load_notes:
-        st.info(n)
+# =============== MAIN INTERFACE ===============
 
-# =======================================
-# Page: Prediction
-# =======================================
-if page == "Prediction":
-    st.header("Enter Patient Details")
+st.markdown("### 👤 Physical Statistics")
 
-    # helper: free numeric input (now 5 chars max)
-    def free_num_input(label, default="0"):
-        val = st.text_input(label, default, max_chars=5)
-        try:
-            return float(val)
-        except:
-            return 0.0
+col1, col2 = st.columns(2)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        Pregnancies = free_num_input('Number of Pregnancies', "0")
-        Glucose = free_num_input('Glucose Level (mg/dL)', "120")
-        BloodPressure = free_num_input('Blood Pressure (mm Hg)', "70")
-        SkinThickness = free_num_input('Skin Thickness (mm)', "20")
-    with col2:
-        Insulin = free_num_input('Insulin (µU/mL)', "79")
-        BMI = free_num_input('BMI', "25.0")
-        DiabetesPedigreeFunction = free_num_input('Diabetes Pedigree Function', "0.5")
-        Age = free_num_input('Age (years)', "33")
+with col1:
+    gender = st.selectbox("Biological Gender", ["Male", "Female"])
+    weight_kg = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0, value=70.0, step=0.1)
 
-    if st.button("Diabetes Test Result"):
-        inputs = input_row_as_list(Pregnancies, Glucose, BloodPressure, SkinThickness,
-                                   Insulin, BMI, DiabetesPedigreeFunction, Age)
-        diagnosis, yclass, proba = predict_diabetes(model, scaler, inputs)
-        st.success(diagnosis)
+with col2:
+    height_cm = st.number_input("Height (cm)", min_value=100, max_value=250, value=175, step=1)
+    
+    # Auto-calculate BMI
+    height_m = height_cm / 100
+    bmi = weight_kg / (height_m ** 2)
+    st.metric("Body Mass Index", f"{bmi:.2f}")
 
-        # ---------- Advanced Visuals ----------
-        st.subheader("📍 Patient-Level Visualizations")
+st.markdown("### 💓 Vital Indicators")
 
-        # Basic bar chart
-        fig1, ax1 = plt.subplots(figsize=(8, 4))
-        ax1.bar(FEATURE_NAMES, inputs, color="skyblue", edgecolor="black")
-        ax1.set_ylabel("Value")
-        ax1.set_title("Entered Features Overview")
-        plt.xticks(rotation=45, ha="right")
-        st.pyplot(fig1)
+col3, col4 = st.columns(2)
 
-        # Radar Chart
-        st.subheader("📊 Radar Chart: Patient vs. Population")
-        try:
-            df = load_data(DEFAULT_DATA_PATH)
-            avg_healthy = df[df["Outcome"] == 0][FEATURE_NAMES].mean().values
-            avg_diabetic = df[df["Outcome"] == 1][FEATURE_NAMES].mean().values
+with col3:
+    pulse_rate = st.number_input("Resting HR (BPM)", min_value=40, max_value=150, value=72, step=1)
+    systolic_bp = st.number_input("Systolic BP (mmHg)", min_value=80, max_value=200, value=120, step=1)
 
-            categories = FEATURE_NAMES + [FEATURE_NAMES[0]]
-            N = len(FEATURE_NAMES)
+with col4:
+    glucose = st.number_input("Glucose Level (mg/dL)", min_value=50.0, max_value=300.0, value=90.0, step=0.1)
+    diastolic_bp = st.number_input("Diastolic BP (mmHg)", min_value=50, max_value=130, value=80, step=1)
 
-            patient = inputs + [inputs[0]]
-            healthy = avg_healthy.tolist() + [avg_healthy[0]]
-            diabetic = avg_diabetic.tolist() + [avg_diabetic[0]]
+# Age
+age = st.number_input("Age (years)", min_value=18, max_value=100, value=35, step=1)
 
-            fig_radar = plt.figure(figsize=(6, 6))
-            ax_radar = plt.subplot(111, polar=True)
-            angles = np.linspace(0, 2 * np.pi, N + 1, endpoint=True)
+st.markdown("### 📋 Clinical History")
 
-            ax_radar.plot(angles, patient, "o-", linewidth=2, label="Patient")
-            ax_radar.fill(angles, patient, alpha=0.25)
-            ax_radar.plot(angles, healthy, "g--", linewidth=1.5, label="Avg Healthy")
-            ax_radar.plot(angles, diabetic, "r--", linewidth=1.5, label="Avg Diabetic")
+col5, col6 = st.columns(2)
 
-            ax_radar.set_thetagrids(angles[:-1] * 180/np.pi, categories)
-            plt.legend(loc="upper right", bbox_to_anchor=(1.3, 1.1))
-            st.pyplot(fig_radar)
-        except Exception as e:
-            st.warning(f"Radar chart unavailable: {e}")
+with col5:
+    hypertension = st.checkbox("Hypertension")
+    cardiovascular = st.checkbox("Cardiovascular Disease")
 
-        # Glucose Gauge
-        st.subheader("Glucose Level Status")
-        fig2, ax2 = plt.subplots(figsize=(6, 1.5))
-        ax2.barh(["Glucose"], [Glucose], color="orange" if Glucose > 140 else "green")
-        ax2.axvline(x=140, color="red", linestyle="--", label="Risk Threshold (140)")
-        ax2.set_xlim([0, 250])
-        ax2.set_xlabel("mg/dL")
-        ax2.legend()
-        st.pyplot(fig2)
+with col6:
+    stroke = st.checkbox("Stroke History")
+    family_diabetes = st.checkbox("Lineal Diabetes")
 
-        # Probability Confidence
-        if proba is not None and len(proba) == 2:
-            st.subheader("Model Confidence (Probability)")
-            fig3, ax3 = plt.subplots(figsize=(6, 1.5))
-            ax3.barh(["Not Diabetic"], [proba[0]], color="green")
-            ax3.barh(["Diabetic"], [proba[1]], color="red")
-            ax3.set_xlim([0, 1])
-            for i, v in enumerate(proba):
-                ax3.text(v + 0.01, i, f"{v:.2f}", va="center")
-            st.pyplot(fig3)
+family_hypertension = st.checkbox("Lineal Hypertension")
 
-        # Patient vs Population
-        st.subheader("Feature Comparison vs Population")
-        try:
-            avg_vals = df[FEATURE_NAMES].mean().values
-            fig4, ax4 = plt.subplots(figsize=(8, 4))
-            x = np.arange(len(FEATURE_NAMES))
-            ax4.bar(x - 0.2, avg_vals, width=0.4, label="Population Avg", color="lightgray")
-            ax4.bar(x + 0.2, inputs, width=0.4, label="Patient", color="dodgerblue")
-            ax4.set_xticks(x)
-            ax4.set_xticklabels(FEATURE_NAMES, rotation=45, ha="right")
-            ax4.set_title("Patient vs. Population Averages")
-            ax4.legend()
-            st.pyplot(fig4)
-        except Exception:
-            pass
+# =============== PREDICTION ===============
 
-        # Advice
-        if yclass == 1:
-            st.info("General tips: balanced diet, regular exercise, and monitor glucose. Consult a healthcare professional if needed.")
-        else:
-            st.info("Great! Maintain healthy lifestyle: balanced diet, activity, and regular checkups.")
+if st.button("🔍 Analyze Risk Factor", use_container_width=True):
+    
+    # Prepare inputs
+    inputs = {
+        'age': age,
+        'gender': gender,
+        'pulse_rate': pulse_rate,
+        'systolic_bp': systolic_bp,
+        'diastolic_bp': diastolic_bp,
+        'glucose': glucose,
+        'height': height_m,
+        'weight': weight_kg,
+        'bmi': bmi,
+        'family_diabetes': 1 if family_diabetes else 0,
+        'hypertensive': 1 if hypertension else 0,
+        'family_hypertension': 1 if family_hypertension else 0,
+        'cardiovascular': 1 if cardiovascular else 0,
+        'stroke': 1 if stroke else 0
+    }
+    
+    # Make prediction
+    result = predict_risk(model, scaler, gender_encoder, inputs)
+    
+    # =============== DISPLAY RESULTS (Like your image) ===============
+    
+    st.markdown("---")
+    st.markdown("### 📊 Risk Assessment Results")
+    
+    # Main risk display (circular gauge style)
+    col_left, col_center, col_right = st.columns([1, 2, 1])
+    
+    with col_center:
+        # Risk percentage display
+        st.markdown(f"""
+        <div style='text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; color: white;'>
+            <h4 style='margin: 0; opacity: 0.9;'>PROBABILITY</h4>
+            <h1 style='margin: 20px 0; font-size: 4em;'>{result['risk_percentage']:.0f}%</h1>
+            <div style='display: inline-block; background: rgba(255,255,255,0.2); padding: 10px 30px; border-radius: 25px; border: 2px solid white;'>
+                <strong>{result['risk_level']}</strong>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("")
+    
+    # Confidence and Validation
+    col_conf, col_val = st.columns(2)
+    
+    with col_conf:
+        st.markdown(f"""
+        <div style='text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;'>
+            <p style='margin: 0; color: #666; font-size: 0.9em;'>CONFIDENCE</p>
+            <h2 style='margin: 10px 0; color: #667eea;'>{result['confidence']:.1f}%</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_val:
+        val_color = "#28a745" if result['validation'] == "Passed" else "#ffc107"
+        st.markdown(f"""
+        <div style='text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;'>
+            <p style='margin: 0; color: #666; font-size: 0.9em;'>VALIDATION</p>
+            <h2 style='margin: 10px 0; color: {val_color};'>{result['validation']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Detailed breakdown
+    st.markdown("---")
+    st.markdown("### 📈 Risk Factors Analysis")
+    
+    # Show which factors contribute most
+    risk_factors = []
+    
+    if glucose > 100:
+        risk_factors.append("⚠️ Elevated glucose level")
+    if systolic_bp > 140 or diastolic_bp > 90:
+        risk_factors.append("⚠️ High blood pressure")
+    if bmi > 25:
+        risk_factors.append("⚠️ BMI above normal range")
+    if hypertension:
+        risk_factors.append("⚠️ Hypertension history")
+    if cardiovascular:
+        risk_factors.append("⚠️ Cardiovascular disease history")
+    if family_diabetes:
+        risk_factors.append("⚠️ Family history of diabetes")
+    
+    if risk_factors:
+        st.warning("**Contributing Risk Factors:**")
+        for factor in risk_factors:
+            st.write(factor)
+    else:
+        st.success("✅ No major risk factors detected")
+    
+    # Recommendations
+    st.markdown("### 💡 Recommendations")
+    
+    if result['risk_level'] == "HIGH":
+        st.error("""
+        **High Risk Detected**
+        - Consult a healthcare professional immediately
+        - Regular monitoring of glucose and blood pressure
+        - Lifestyle modifications recommended
+        - Consider preventive medication if advised
+        """)
+    elif result['risk_level'] == "MODERATE":
+        st.warning("""
+        **Moderate Risk**
+        - Schedule a check-up with your doctor
+        - Monitor vitals regularly
+        - Adopt healthy diet and exercise routine
+        - Re-assess in 3-6 months
+        """)
+    else:
+        st.success("""
+        **Low Risk**
+        - Maintain current healthy lifestyle
+        - Annual health check-ups recommended
+        - Stay active and eat balanced diet
+        - Monitor any changes in health status
+        """)
+    
+    st.info("**Disclaimer:** This is a screening tool for educational purposes only. Always consult healthcare professionals for medical advice.")
 
-# =======================================
-# Page: Data Visualizations
-# =======================================
-elif page == "Data Visualizations":
-    st.header("📊 Explore the Diabetes Dataset")
-
-    uploaded = st.file_uploader("Upload diabetes.csv (optional)", type="csv")
-    try:
-        df = load_data(DEFAULT_DATA_PATH, uploaded_file=uploaded)
-        st.success(f"Loaded dataset with shape: {df.shape}")
-        if st.checkbox("Preview data"):
-            st.dataframe(df.head())
-
-        # Correlation heatmap
-        if st.checkbox("Show Correlation Heatmap"):
-            fig_hm, ax_hm = plt.subplots(figsize=(8, 6))
-            corr = df.corr(numeric_only=True)
-            im = ax_hm.imshow(corr, aspect="auto")
-            ax_hm.set_xticks(range(len(corr.columns)))
-            ax_hm.set_yticks(range(len(corr.index)))
-            ax_hm.set_xticklabels(corr.columns, rotation=45, ha="right")
-            ax_hm.set_yticklabels(corr.index)
-            for i in range(len(corr.index)):
-                for j in range(len(corr.columns)):
-                    ax_hm.text(j, i, f"{corr.iloc[i, j]:.2f}", ha="center", va="center", fontsize=8)
-            ax_hm.set_title("Correlation Heatmap")
-            fig_hm.colorbar(im)
-            st.pyplot(fig_hm)
-
-        # Feature distribution
-        if st.checkbox("Show Feature Distributions"):
-            num_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-            feature = st.selectbox("Select a feature", num_cols, index=0 if num_cols else None)
-            if feature:
-                fig_hist, ax_hist = plt.subplots()
-                ax_hist.hist(df[feature].dropna(), bins=30)
-                ax_hist.set_title(f"Distribution: {feature}")
-                st.pyplot(fig_hist)
-
-    except FileNotFoundError as e:
-        st.warning(str(e))
-        st.info("Upload the dataset or place 'diabetes.csv' next to this script.")
-
-# =======================================
-# Page: About
-# =======================================
-else:
-    st.header("About")
-    st.write(
-        """
-        **Owner: Mirza Yasir Abdullah Baig**
-        - I am software engineer and an AI/ML Engineer.
-        - The purpose of this model is to provide the best results.
-        - This is my first hackathon and i am very excited
-
-        **Diabetes Prediction Web App**
-        - Predicts diabetes using a trained ML model.
-        - Provides patient-level advanced visualizations.
-        - Dataset exploration with heatmap & distributions.
-        
-        **Files expected:**
-        - `trained_model.sav` → model (and scaler if included)
-        - `scaler.sav` (optional)
-        - `diabetes.csv` (optional, else upload)
-
-        *Disclaimer: For educational/demo use only. Not medical advice.*
-        """
-    )
-
-
-
-
+# =============== ABOUT ===============
+with st.expander("ℹ️ About This Tool"):
+    st.write("""
+    **Health Risk Assessment Tool**
+    
+    This application uses machine learning to assess health risks based on:
+    - Physical statistics and vital signs
+    - Clinical and family history
+    - Advanced predictive analytics
+    
+    **Model Information:**
+    - Algorithm: Support Vector Machine (SVM)
+    - Training Data: 5,289 patient records
+    - Features: 14 health indicators
+    
+    **Creator:** Mirza Yasir Abdullah Baig
+    
+    *For educational and screening purposes only. Not a substitute for professional medical diagnosis.*
+    """)
