@@ -99,14 +99,7 @@ color:white;
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-.block-container{
-max-width:900px;
-padding-top:2rem;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 # ================= LOAD MODEL =================
 
@@ -370,8 +363,9 @@ st.markdown("""
 <center style="color:white">
 DiaPredict • AI Health Screening Tool
 <br>
-Developed by Intan Abdali
+Developed by Intan & Shahed
 </center>
 """, unsafe_allow_html=True)
+
 
 
