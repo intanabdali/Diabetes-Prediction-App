@@ -116,14 +116,14 @@ def add_pwa_support():
 
 # =============== UI ===============
 st.set_page_config(
-    page_title="Health Risk Assessment",
-    page_icon="🏥",
+    page_title="DiaPredict",
+    page_icon="🩺",
     layout="centered"
 )
 
 add_pwa_support()
 
-st.title("🏥 Health Risk Assessment")
+st.title("🩺 DiaPredict")
 
 # Load model
 try:
@@ -306,7 +306,7 @@ if st.button("🔍 Analyze Risk Factor", use_container_width=True):
 # =============== ABOUT ===============
 with st.expander("ℹ️ About This Tool"):
     st.write("""
-    **Health Risk Assessment Tool**
+    **DiaPredict Tool**
     
     This application uses machine learning to assess health risks based on:
     - Physical statistics and vital signs
@@ -318,7 +318,8 @@ with st.expander("ℹ️ About This Tool"):
     - Training Data: 5,289 patient records
     - Features: 14 health indicators
     
-    **Creator:** Mirza Yasir Abdullah Baig
+    **Creator:** Intan Abdali && Shahadat Hossain Shahed
     
     *For educational and screening purposes only. Not a substitute for professional medical diagnosis.*
     """)
+
