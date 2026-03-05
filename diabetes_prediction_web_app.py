@@ -30,16 +30,37 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* MAIN BACKGROUND */
 .stApp{
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-}
-
-h1{
-text-align:center;
+background: linear-gradient(135deg,#1c3b44,#2c5364,#203a43);
 color:white;
-font-weight:700;
 }
 
+/* ALL TEXT WHITE */
+html, body, [class*="css"]  {
+color:white;
+}
+
+/* HEADINGS */
+h1,h2,h3,h4,h5,h6{
+color:white;
+}
+
+/* INPUT LABELS */
+label{
+color:white !important;
+font-weight:500;
+}
+
+/* INPUT BOXES */
+.stSelectbox div,
+.stNumberInput div{
+background:#1e2a38 !important;
+color:white !important;
+border-radius:10px;
+}
+
+/* CARD STYLE */
 .card{
 background: rgba(255,255,255,0.08);
 padding:25px;
@@ -47,9 +68,9 @@ border-radius:15px;
 backdrop-filter: blur(10px);
 box-shadow:0 8px 20px rgba(0,0,0,0.3);
 margin-bottom:20px;
-color:white;
 }
 
+/* BUTTON */
 .stButton>button{
 background: linear-gradient(135deg,#667eea,#764ba2);
 color:white;
@@ -58,11 +79,21 @@ padding:12px;
 font-size:18px;
 border-radius:10px;
 font-weight:600;
-transition:0.3s;
 }
 
 .stButton>button:hover{
 transform:scale(1.05);
+}
+
+/* METRIC TEXT */
+[data-testid="stMetricValue"]{
+color:white;
+}
+
+/* SIDEBAR */
+section[data-testid="stSidebar"]{
+background:#1b2b34;
+color:white;
 }
 
 </style>
@@ -333,3 +364,4 @@ DiaPredict • AI Health Screening Tool
 Developed by Intan Abdali
 </center>
 """, unsafe_allow_html=True)
+
