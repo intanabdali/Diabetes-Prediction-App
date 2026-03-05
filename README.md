@@ -1,105 +1,178 @@
-# 🩺 Diabetes Prediction Web App
+🎯 Overview
+This application uses a Support Vector Machine (SVM) classifier trained on real patient data to assess diabetes risk. Users input their health metrics, and the system provides:
 
-An **AI-powered interactive web application** built with **Streamlit** that predicts whether a person is diabetic based on key medical parameters.  
-The model is trained on the **PIMA Indians Diabetes Dataset** using **Scikit-learn**.  
+Risk probability percentage
+Confidence score
+Validation status
+Personalized health recommendations
+Interactive visualizations
 
----
+The model analyzes 12 key health indicators to make predictions with approximately 82-85% accuracy.
 
-## 🚀 Demo  
-🔗 [Live App on Streamlit](https://diabetesprediction-web-app07.streamlit.app/)  
+✨ Features
+🔍 Health Assessment
 
-## 🚀 Video Demo  
-[Video Demo](https://github.com/user-attachments/assets/c1b6d732-ecd6-4972-96eb-6a4c1f0c0512)
+Comprehensive 12-metric health evaluation
+Real-time risk prediction
+Probability-based scoring system
+Confidence level indicators
 
-## 🚀 Detail Video On Youtube  
-🎥 [Watch Demo on YouTube](https://youtu.be/VIUlTn2ah40?si=2AP86xRfoTWu8vYm)  
+📱 Progressive Web App (PWA)
 
----
+Installable on mobile devices
+Offline capability
+Fullscreen mode (no URL bar)
+Custom app icon
+Native app experience
 
-## 📌 Features  
-- Enter medical details through a **user-friendly input form**.  
-- Model predicts **diabetes risk instantly**.  
-- Trained on the **PIMA Diabetes Dataset** (Kaggle).  
-- Clean and interactive **Streamlit interface**.  
-- Sidebar navigation with **developer details and links**.  
+💡 Smart Features
 
----
+Auto-calculated BMI
+Real-time input validation
+Personalized recommendations
+Dataset exploration tools
+Correlation heatmaps
 
-## 🔍 Usage  
-1. Open the app in your browser.  
-2. Enter the required medical information:  
-   - Pregnancies  
-   - Glucose Level  
-   - Blood Pressure  
-   - Skin Thickness  
-   - Insulin Level  
-   - BMI (Body Mass Index)  
-   - Diabetes Pedigree Function  
-   - Age  
-3. Click **Predict**.  
-4. Get results instantly:  
-   - ✅ *The person is not diabetic*  
-   - ❌ *The person is diabetic*  
+🛠️ Technology Stack
+Core Technologies
 
----
+Python 3.9+ - Programming language
+Streamlit 1.25+ - Web framework
+scikit-learn 1.3+ - Machine learning
+Pandas 2.0+ - Data manipulation
+NumPy 1.23+ - Numerical computing
+Matplotlib 3.7+ - Visualization
+Seaborn 0.12+ - Statistical visualization
 
-## 📊 Dataset  
-- **Dataset Name**: PIMA Indians Diabetes Database  
-- **Source**: [Kaggle Dataset](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database)  
-- **Attributes**: 8 health parameters + outcome label  
-- **Goal**: Predict diabetes risk from health features  
+Deployment
 
----
+Streamlit Cloud - Hosting platform
+GitHub - Version control
+PWA - Progressive Web App features
 
-## ⚙️ Tech Stack  
-- **Python 3.9+**  
-- **Streamlit** (Web App UI)  
-- **Scikit-learn** (Machine Learning Model)  
-- **NumPy & Pandas** (Data Processing)  
-- **streamlit-option-menu** (UI Navigation)  
 
----
+📥 Installation
+Prerequisites
 
-## 📸 Screenshots  
-### 🏠 Home Page  
-<img width="1878" height="826" alt="image" src="https://github.com/user-attachments/assets/b0ddaa4b-1a10-4b18-9e9e-04548f975752" />
+Python 3.9 or higher
+pip package manager
+Git (optional)
 
-### 🏠 Data Visualization Page 
-<img width="1857" height="731" alt="image" src="https://github.com/user-attachments/assets/1102d007-780f-4538-ac86-fa48866dec7b" />
+Option 1: Quick Start (Recommended)
 
-### 🏠 About Page 
-<img width="1868" height="804" alt="image" src="https://github.com/user-attachments/assets/15b7dda1-9716-4b7b-9f5e-2a50179c3284" />
+Clone the repository:
 
-### ✅ Prediction Result  
-<img width="1881" height="807" alt="image" src="https://github.com/user-attachments/assets/4e47db1c-e536-4327-ac0b-bec338f24898" />
+bash   git clone https://github.com/intanabdali/Diabetes-Prediction-App.git
+   cd Diabetes-Prediction-App
 
-### ✅ Prediction Result  
-<img width="1896" height="721" alt="image" src="https://github.com/user-attachments/assets/bc1220f3-f607-4e5f-a78d-e1acf135094c" />
+Create virtual environment:
 
-### ✅ Prediction Result  
-<img width="1891" height="822" alt="image" src="https://github.com/user-attachments/assets/71a8050c-4a69-4ecd-bb18-f08cf69d1b65" />
+bash   python -m venv venv
+   
+   # On Windows:
+   venv\Scripts\activate
+   
+   # On macOS/Linux:
+   source venv/bin/activate
 
----
+Install dependencies:
 
-## 👨‍💻 Author  
-**Mirza Yasir Abdullah Baig**  
+bash   pip install -r requirements.txt
 
-- 🌐 [Kaggle](https://www.kaggle.com/mirzayasirabdullah07)  
-- 💼 [LinkedIn](https://www.linkedin.com/in/mirza-yasir-abdullah-baig/)  
-- 💻 [GitHub](https://github.com/mirzayasirabdullahbaig07)  
+Run the application:
 
----
+bash   streamlit run diabetes_prediction_web_app.py
 
-## ❤️ Acknowledgements  
-- [PIMA Diabetes Dataset](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database)  
-- [Streamlit Documentation](https://docs.streamlit.io/)  
-- [Scikit-learn](https://scikit-learn.org/stable/)  
+Open in browser:
 
----
+The app will automatically open at http://localhost:8501
+If not, manually navigate to that URL
 
-## ⚠️ Disclaimer  
-This project is for **educational purposes only**.  
-It should **not** be used as a substitute for professional medical advice or diagnosis.  
 
----
+
+Option 2: Direct Installation
+bash# Install dependencies
+pip install streamlit pandas numpy scikit-learn matplotlib seaborn
+
+# Run application
+streamlit run diabetes_prediction_web_app.py
+
+🚀 Usage
+Making a Prediction
+
+Navigate to Prediction Page
+
+Open the app in your browser
+Ensure "Prediction" is selected in the sidebar
+
+
+Enter Health Information
+Physical Statistics:
+
+Gender (Male/Female)
+Height (cm)
+Weight (kg)
+BMI (auto-calculated)
+
+Vital Indicators:
+
+Resting Heart Rate (BPM)
+Glucose Level (mg/dL)
+Systolic Blood Pressure (mmHg)
+Diastolic Blood Pressure (mmHg)
+Age (years)
+
+Clinical History:
+
+☐ Hypertension
+☐ Cardiovascular Disease
+☐ Stroke History
+
+
+Click "Analyze Risk Factor"
+
+View risk percentage
+Check confidence score
+Read validation status
+Review recommendations
+
+Installing as Mobile App
+On Android:
+
+Open app in Chrome browser
+Tap menu (⋮) → "Install app" or "Add to Home screen"
+Tap "Install"
+App icon appears on home screen
+Opens fullscreen like a native app
+
+On iOS:
+
+Open app in Safari browser
+Tap Share button (⬆️)
+Tap "Add to Home Screen"
+Tap "Add"
+App icon appears on home screen
+
+
+🧠 Model Information
+Algorithm
+
+Type: Support Vector Machine (SVM)
+Kernel: Linear
+Training Data: 5,289 patient records
+Features: 12 health indicators
+
+Performance Metrics
+
+Accuracy: ~82-85%
+Sensitivity: ~65-70% (diabetic detection)
+Specificity: ~85-90% (non-diabetic detection)
+
+Feature Importance
+
+Glucose (Most Important) - Direct diabetes indicator
+BMI - Strong correlation with Type 2 diabetes
+Age - Risk increases with age
+Blood Pressure - Often co-occurs with diabetes
+Hypertension - Linked to metabolic syndrome
 
