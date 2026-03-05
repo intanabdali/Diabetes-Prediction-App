@@ -17,7 +17,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ================= PREMIUM UI STYLE =================
+# ================= UPDATED DARK-THEME UI STYLE =================
 st.markdown("""
 <style>
     /* Global Styles */
@@ -25,85 +25,97 @@ st.markdown("""
     
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #F0F4F8;
     }
 
+    /* MATCHING ATTACHED IMAGE BACKGROUND */
     .stApp {
-        background: linear-gradient(180deg, #FFFFFF 0%, #E6F0F3 100%);
+        background: linear-gradient(135deg, #1c3b44 0%, #2c5364 50%, #203a43 100%);
+        color: white;
     }
 
-    /* Professional Card Styling */
+    /* Glassmorphism Card Styling */
     .premium-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.07);
         padding: 30px;
         border-radius: 24px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 10px 25px rgba(0, 180, 216, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         margin-bottom: 25px;
     }
 
     /* Subheader Styling */
     .section-header {
-        color: #1A365D;
+        color: #00d2ff;
         font-weight: 800;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    /* Input Fields Customization */
+    /* Input Fields Customization for Dark Theme */
     .stNumberInput div div input, .stSelectbox div div div {
-        background-color: #F8FAFC !important;
-        border: 1px solid #CBD5E1 !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 12px !important;
-        color: #1E293B !important;
+        color: white !important;
+    }
+    
+    label p {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-weight: 500 !important;
     }
 
     /* Hero Prediction Button */
     .stButton>button {
-        background: linear-gradient(90deg, #0077B6 0%, #00B4D8 100%);
+        background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
         color: white;
         border: none;
         padding: 20px !important;
         font-size: 20px !important;
         border-radius: 16px !important;
         font-weight: 700 !important;
-        box-shadow: 0 8px 20px rgba(0, 180, 216, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 210, 255, 0.3);
         transition: all 0.3s ease;
         width: 100%;
+        margin-top: 10px;
     }
 
     .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px rgba(0, 180, 216, 0.4);
-        background: linear-gradient(90deg, #00B4D8 0%, #0077B6 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 210, 255, 0.5);
+        background: linear-gradient(90deg, #3a7bd5 0%, #00d2ff 100%);
     }
 
     /* Result Dashboard */
     .result-container {
-        background: #FFFFFF;
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 30px;
         padding: 40px;
         text-align: center;
-        border: 2px solid #00B4D8;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        border: 2px solid #00d2ff;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
     }
 
     .risk-score {
-        font-size: 80px;
+        font-size: 85px;
         font-weight: 800;
-        background: -webkit-linear-gradient(#023E8A, #00B4D8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #00d2ff;
+        text-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
         margin: 0;
     }
+    
+    /* Metrics for Dark Theme */
+    [data-testid="stMetricValue"] {
+        color: #00d2ff !important;
+    }
 
-    /* Metric Label Fixes */
-    label p {
-        color: #475569 !important;
-        font-weight: 600 !important;
+    /* Sidebar Fix */
+    section[data-testid="stSidebar"] {
+        background-color: #162a33 !important;
     }
 
 </style>
@@ -120,15 +132,15 @@ def load_model():
 try:
     model, scaler, encoder = load_model()
 except:
-    st.error("⚠️ System Offline: Model synchronization failed.")
+    st.error("⚠️ System Offline: Model synchronization failed. Check your .sav files.")
     st.stop()
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    st.markdown("""
+    st.markdown(f"""
         <div style='text-align:center; padding-bottom:20px;'>
-            <h1 style='color:#00B4D8; font-size: 32px;'>🩺 DiaPredict</h1>
-            <p style='color:#64748B;'>Clinical Risk Intelligence v3.0</p>
+            <h1 style='color:#00d2ff; font-size: 32px; margin-bottom:0;'>🩺 DiaPredict</h1>
+            <p style='color:rgba(255,255,255,0.6);'>Clinical Risk AI v3.0</p>
         </div>
     """, unsafe_allow_html=True)
     
@@ -137,11 +149,11 @@ with st.sidebar:
     st.success("**Intan Abdali**")
     st.success("**S.H. Shahed**")
     
-    st.info("💡 **Clinical Note:** Predictive models are most accurate when using fasting glucose data collected within the last 24 hours.")
+    st.info("💡 **Clinical Note:** Fasting glucose data collected within the last 24 hours provides the most accurate risk forecasting.")
 
 # ================= MAIN CONTENT =================
-st.markdown("<h1 style='text-align: center; color: #1A365D;'>Diabetes Risk Intelligence</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Input patient biometrics to generate a high-precision probability report.</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; margin-bottom:0;'>Diabetes Risk Intelligence</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom:40px;'>AI-Powered Metabolic Screening Interface</p>", unsafe_allow_html=True)
 
 # --- PHYSICAL STATS ---
 st.markdown('<div class="premium-card">', unsafe_allow_html=True)
@@ -160,8 +172,11 @@ with col2:
 with col3:
     height_m = height/100
     bmi = weight/(height_m**2)
-    bmi_color = "normal" if 18.5 <= bmi <= 25 else "off"
-    st.metric("Body Mass Index (BMI)", f"{bmi:.1f}", delta="Optimal Range" if bmi_color=="normal" else "Review Needed")
+    st.metric("Body Mass Index (BMI)", f"{bmi:.1f}")
+    if 18.5 <= bmi <= 25:
+        st.caption("✅ Optimal weight range detected.")
+    else:
+        st.caption("⚠️ Review weight management markers.")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -200,8 +215,8 @@ with hcol3:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ================= PREDICTION ENGINE =================
-if st.button("🚀 GENERATE PREDICTIVE REPORT"):
-    with st.spinner("Processing Clinical Data..."):
+if st.button("🔍 RUN ANALYTICAL SCREENING"):
+    with st.spinner("Processing Multi-Factor Data..."):
         # Encoding and Logic
         gender_encoded = 1 if gender=="Male" else 0
         features = [age, gender_encoded, pulse, sys_bp, dia_bp, glucose, height_m, weight, bmi, 
@@ -215,19 +230,22 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
 
         # Logic for Results
         if risk < 25:
-            level, color, icon = "LOW", "#06D6A0", "✅"
+            level, color, icon = "LOW", "#00ffcc", "✅"
         elif risk < 60:
-            level, color, icon = "MODERATE", "#FFD166", "⚠️"
+            level, color, icon = "MODERATE", "#ffcc00", "⚠️"
         else:
-            level, color, icon = "CRITICAL", "#EF476F", "🚨"
+            level, color, icon = "CRITICAL", "#ff4b4b", "🚨"
 
         # --- PREMIUM RESULT DISPLAY ---
         st.markdown(f"""
             <div class="result-container">
-                <p style="color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Probability Assessment</p>
+                <p style="color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Predicted Risk Probability</p>
                 <h1 class="risk-score">{risk:.1f}%</h1>
-                <h2 style="color: {color}; font-weight: 800; margin-top: -10px;">{icon} {level} RISK LEVEL</h2>
-                <p style="color: #475569; max-width: 500px; margin: 0 auto;">Based on the current SVM algorithm parameters, the patient shows a {risk:.1f}% statistical likelihood of diabetic markers.</p>
+                <h2 style="color: {color}; font-weight: 800; margin-top: -10px;">{icon} {level} RISK DETECTED</h2>
+                <p style="color: rgba(255,255,255,0.8); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                    The AI engine has analyzed your biometric profile against clinical datasets. 
+                    A score of {risk:.1f}% indicates a {level.lower()} probability of diabetic markers based on current vital inputs.
+                </p>
             </div>
         """, unsafe_allow_html=True)
 
@@ -237,24 +255,24 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
         
         with col_adv1:
             st.markdown(f"### 🎯 Key Observations")
-            if glucose > 125: st.error("Critical Fasting Glucose levels detected.")
-            if bmi > 30: st.warning("BMI indicates Class I Obesity risk.")
-            if family_diabetes: st.info("Genetic predisposition noted.")
-            if not any([glucose > 125, bmi > 30, family_diabetes]): st.success("All primary biomarkers within safe zones.")
+            if glucose > 125: st.error("Fasting Glucose: Critical Elevation")
+            if bmi > 30: st.warning("Metabolic: Obesity Marker Present")
+            if family_diabetes: st.info("Genetic: High Predisposition")
+            if not any([glucose > 125, bmi > 30, family_diabetes]): st.success("Safe Zone: Primary biomarkers are within range.")
 
         with col_adv2:
-            st.markdown("### 👨‍⚕️ Clinical Protocol")
+            st.markdown("### 👨‍⚕️ Suggested Protocol")
             if level == "CRITICAL":
-                st.markdown("1. Immediate GP consultation required\n2. Schedule HbA1c Laboratory test\n3. Restrict carbohydrate intake")
+                st.markdown("1. Immediate Physician Consultation\n2. Lab-Grade HbA1c Blood Panel\n3. Strict Carbohydrate Restriction")
             elif level == "MODERATE":
-                st.markdown("1. Increase physical activity (150m/week)\n2. Annual glucose monitoring\n3. Reduce processed sugar")
+                st.markdown("1. Increased Physical Activity (150m+/wk)\n2. Quarterly Glucose Self-Monitoring\n3. Dietary Sugar Reduction")
             else:
-                st.markdown("1. Maintain balanced hydration\n2. Continue standard wellness routine\n3. Regular fitness tracking")
+                st.markdown("1. Maintain Current Wellness Routine\n2. Stay Hydrated & Physically Active\n3. Regular Annual Health Screening")
 
 # ================= FOOTER =================
 st.markdown("""
-    <div style="margin-top: 100px; padding: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #94A3B8;">
-        DiaPredict Pro • Secure HIPAA-Aligned Interface<br>
-        Developed with ❤️ by the Clinical AI Team
+    <div style="margin-top: 80px; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; color: rgba(255,255,255,0.4); font-size: 0.9rem;">
+        DiaPredict Pro • AI-Powered Health Screening • HIPAA Compliant Layout<br>
+        Developed by Intan Abdali & Shahadat Hossain Shahed
     </div>
 """, unsafe_allow_html=True)
