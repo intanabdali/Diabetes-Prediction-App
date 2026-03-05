@@ -231,25 +231,76 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             </div>
         """, unsafe_allow_html=True)
 
-        # --- DYNAMIC ADVISORY ---
+      # =================  DYNAMIC ADVISORY =================
         st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Adding a separator for better visual flow
+        st.markdown("<hr style='border: 0.5px solid rgba(255,255,255,0.1)'>", unsafe_allow_html=True)
+        
         col_adv1, col_adv2 = st.columns(2)
         
         with col_adv1:
-            st.markdown(f"### 🎯 Key Observations")
-            if glucose > 125: st.error("Critical Fasting Glucose levels detected.")
-            if bmi > 30: st.warning("BMI indicates Class I Obesity risk.")
-            if family_diabetes: st.info("Genetic predisposition noted.")
-            if not any([glucose > 125, bmi > 30, family_diabetes]): st.success("All primary biomarkers within safe zones.")
+            st.markdown("### 🎯 Clinical Insights")
+            
+            # --- Glucose Observation ---
+            if glucose > 125:
+                st.error(f"**Critical Glucose:** {glucose} mg/dL")
+                st.caption("🚨 *Hyperglycemia detected.* Levels above 125 mg/dL in a fasting state are primary indicators for Type 2 Diabetes.")
+            elif glucose > 100:
+                st.warning(f"**Pre-diabetic Range:** {glucose} mg/dL")
+                st.caption("⚠️ Your glucose is in the 'Impaired Fasting Glucose' range. Early intervention can reverse this trend.")
+            else:
+                st.success("**Healthy Glucose Metabolism**")
+                st.caption("✅ Your fasting blood sugar is within the optimal clinical range (70-100 mg/dL).")
+
+            # --- BMI Observation ---
+            if bmi > 30:
+                st.warning(f"**Weight Factor: Obesity (BMI {bmi:.1f})**")
+                st.caption("⚖️ High BMI increases insulin resistance, making it harder for your body to regulate blood sugar effectively.")
+            elif bmi > 25:
+                st.info(f"**Weight Factor: Overweight (BMI {bmi:.1f})**")
+                st.caption("🏃 Slight elevation in BMI detected. Modest weight loss (5-7%) can significantly reduce diabetes risk.")
+
+            # --- Genetic Observation ---
+            if family_diabetes:
+                st.info("**Genetic Predisposition: Present**")
+                st.caption("🧬 A lineal history of diabetes increases your baseline risk. Environmental factors (diet/exercise) are now your primary defense.")
 
         with col_adv2:
             st.markdown("### 👨‍⚕️ Clinical Protocol")
+            
+            # We create a "Protocol Container" using Markdown for a professional look
             if level == "CRITICAL":
-                st.markdown("1. Immediate GP consultation required\n2. Schedule HbA1c Laboratory test\n3. Restrict carbohydrate intake")
+                st.markdown(f"""
+                <div style="background: rgba(239, 71, 111, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #EF476F;">
+                    <b style="color:#EF476F;">IMMEDIATE ACTIONS:</b><br>
+                    1. <b>Physician Consultation:</b> Present this report to a GP or Endocrinologist within 48 hours.<br>
+                    2. <b>Diagnostic Testing:</b> Request a Laboratory HbA1c test and an Oral Glucose Tolerance Test (OGTT).<br>
+                    3. <b>Nutritional Crisis Management:</b> Adopt a 'Low Glycemic Index' diet immediately; eliminate all refined sugars.
+                </div>
+                """, unsafe_allow_html=True)
+                
             elif level == "MODERATE":
-                st.markdown("1. Increase physical activity (150m/week)\n2. Annual glucose monitoring\n3. Reduce processed sugar")
+                st.markdown(f"""
+                <div style="background: rgba(255, 209, 102, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #FFD166;">
+                    <b style="color:#FFD166;">PREVENTATIVE PROTOCOL:</b><br>
+                    1. <b>Metabolic Activation:</b> Target 150 minutes of moderate aerobic activity (brisk walking) per week.<br>
+                    2. <b>Glucose Tracking:</b> Begin a 'Sugar Journal' to identify which specific meals cause energy crashes or spikes.<br>
+                    3. <b>Fiber Integration:</b> Increase daily fiber to 25g+ to slow down glucose absorption in the bloodstream.
+                </div>
+                """, unsafe_allow_html=True)
+                
             else:
-                st.markdown("1. Maintain balanced hydration\n2. Continue standard wellness routine\n3. Regular fitness tracking")
+                st.markdown(f"""
+                <div style="background: rgba(6, 214, 160, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #06D6A0;">
+                    <b style="color:#06D6A0;">MAINTENANCE STRATEGY:</b><br>
+                    1. <b>Annual Bio-Screening:</b> Continue yearly fasting glucose checks to maintain this healthy baseline.<br>
+                    2. <b>Hydration Focus:</b> Maintain optimal kidney function by consuming 2-3 liters of water daily.<br>
+                    3. <b>Stress Management:</b> High cortisol can spike glucose; maintain consistent sleep cycles (7-8 hours).
+                </div>
+                """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
 
 # ================= FOOTER =================
 st.markdown("""
@@ -258,3 +309,4 @@ st.markdown("""
         Developed with ❤️ by the Clinical AI Team
     </div>
 """, unsafe_allow_html=True)
+
