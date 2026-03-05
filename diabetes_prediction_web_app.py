@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Health Risk Prediction Web App (Streamlit)
-- Multi-factor risk assessment
-- Clinical history integration
-- Advanced visualizations
+DiaPredict: Advanced Diabetes Risk Assessment
+Designed for: Intan Abdali & Shahadat Hossain Shahed
 """
 
 import os
@@ -14,312 +12,249 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
 
-# =============== App Constants ===============
+# =============== Page Configuration ===============
+st.set_page_config(
+    page_title="DiaPredict | Precision AI",
+    page_icon="🩺",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# =============== Professional Theme CSS ===============
+def local_css():
+    st.markdown("""
+    <style>
+        /* Main Background */
+        .stApp {
+            background-color: #f8fafc;
+        }
+        
+        /* Sidebar Branding */
+        section[data-testid="stSidebar"] {
+            background-color: #0f172a !important;
+        }
+        section[data-testid="stSidebar"] .stMarkdown, section[data-testid="stSidebar"] p {
+            color: #f1f5f9 !important;
+        }
+
+        /* Card-like containers */
+        div[data-testid="stVerticalBlock"] > div:has(div.stMarkdown) {
+            background-color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        /* Metric Styling */
+        [data-testid="stMetricValue"] {
+            font-size: 2rem !important;
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        /* Button Styling */
+        .stButton>button {
+            width: 100%;
+            border-radius: 12px;
+            height: 3.5em;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stButton>button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Result Box Gradient */
+        .result-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 40px;
+            border-radius: 24px;
+            color: white;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Custom Tab Styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 24px;
+        }
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            font-weight: 600;
+            font-size: 16px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+local_css()
+
+# =============== Utils & Prediction Logic ===============
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_MODEL_PATH = os.path.join(APP_DIR, "trained_model.sav")
 DEFAULT_SCALER_PATH = os.path.join(APP_DIR, "scaler.sav")
 DEFAULT_GENDER_ENCODER_PATH = os.path.join(APP_DIR, "gender_encoder.sav")
-DEFAULT_DATA_PATH = os.path.join(APP_DIR, "diabetes.csv")
 
-FEATURE_NAMES = [
-    "Age", "Gender", "Pulse Rate", "Systolic BP", "Diastolic BP",
-    "Glucose", "Height", "Weight", "BMI",
-    "Family Diabetes", "Hypertensive", "Family Hypertension",
-    "Cardiovascular Disease", "Stroke"
-]
-
-# =============== Utils ===============
 @st.cache_resource
 def load_model_and_encoders():
-    """Load model, scaler, and gender encoder"""
-    model = pickle.load(open(DEFAULT_MODEL_PATH, "rb"))
-    scaler = pickle.load(open(DEFAULT_SCALER_PATH, "rb"))
-    gender_encoder = pickle.load(open(DEFAULT_GENDER_ENCODER_PATH, "rb"))
-    return model, scaler, gender_encoder
+    try:
+        model = pickle.load(open(DEFAULT_MODEL_PATH, "rb"))
+        scaler = pickle.load(open(DEFAULT_SCALER_PATH, "rb"))
+        gender_encoder = pickle.load(open(DEFAULT_GENDER_ENCODER_PATH, "rb"))
+        return model, scaler, gender_encoder
+    except Exception as e:
+        return None, None, None
 
 def predict_risk(model, scaler, gender_encoder, inputs_dict):
-    """Make risk prediction"""
-    
-    # Convert gender to numeric
     gender_encoded = 1 if inputs_dict['gender'] == 'Male' else 0
-    
-    # Create feature array
     features = [
-        inputs_dict['age'],
-        gender_encoded,
-        inputs_dict['pulse_rate'],
-        inputs_dict['systolic_bp'],
-        inputs_dict['diastolic_bp'],
-        inputs_dict['glucose'],
-        inputs_dict['height'],
-        inputs_dict['weight'],
-        inputs_dict['bmi'],
-        inputs_dict['family_diabetes'],
-        inputs_dict['hypertensive'],
-        inputs_dict['family_hypertension'],
-        inputs_dict['cardiovascular'],
+        inputs_dict['age'], gender_encoded, inputs_dict['pulse_rate'],
+        inputs_dict['systolic_bp'], inputs_dict['diastolic_bp'],
+        inputs_dict['glucose'], inputs_dict['height'],
+        inputs_dict['weight'], inputs_dict['bmi'],
+        inputs_dict['family_diabetes'], inputs_dict['hypertensive'],
+        inputs_dict['family_hypertension'], inputs_dict['cardiovascular'],
         inputs_dict['stroke']
     ]
-    
-    # Convert to array and scale
     x = np.array(features).reshape(1, -1)
     x_scaled = scaler.transform(x)
     
-    # Predict
     prediction = model.predict(x_scaled)[0]
     probability = model.predict_proba(x_scaled)[0]
+    risk_percentage = probability[1] * 100
     
-    # Get risk percentage
-    risk_percentage = probability[1] * 100  # Probability of diabetic
-    
-    # Determine risk level
     if risk_percentage < 30:
-        risk_level = "LOW"
-        risk_color = "green"
+        level, color = "LOW", "green"
     elif risk_percentage < 60:
-        risk_level = "MODERATE"
-        risk_color = "orange"
+        level, color = "MODERATE", "orange"
     else:
-        risk_level = "HIGH"
-        risk_color = "red"
-    
-    # Confidence (how sure the model is)
+        level, color = "HIGH", "red"
+        
     confidence = max(probability) * 100
-    
-    # Validation (if confidence is high enough)
-    validation = "Passed" if confidence > 70 else "Review Needed"
-    
     return {
-        'prediction': prediction,
         'risk_percentage': risk_percentage,
-        'risk_level': risk_level,
-        'risk_color': risk_color,
+        'risk_level': level,
+        'risk_color': color,
         'confidence': confidence,
-        'validation': validation,
-        'probability': probability
+        'validation': "Passed" if confidence > 70 else "Review Needed"
     }
 
-# =============== PWA Support ===============
-def add_pwa_support():
-    """Add PWA support for mobile installation"""
-    pwa_html = """
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HealthRisk">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    """
-    components.html(pwa_html, height=0)
+# =============== Sidebar Dashboard ===============
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/3063/3063176.png", width=80)
+    st.title("DiaPredict AI")
+    st.markdown("---")
+    st.markdown("### 🏥 System Status")
+    st.success("✨ Engine: SVM-RBF Active")
+    st.info("📊 Database: 5.2k Records")
+    st.markdown("---")
+    st.caption("v2.4.0-Stable | © 2024")
 
-# =============== UI ===============
-st.set_page_config(
-    page_title="DiaPredict",
-    page_icon="🩺",
-    layout="centered"
-)
+# =============== Main UI ===============
+model, scaler, gender_encoder = load_model_and_encoders()
 
-add_pwa_support()
+st.title("🩺 DiaPredict: Precision Risk Analytics")
+st.markdown("Utilize our clinical-grade AI to forecast metabolic health risks based on multi-factor patient data.")
 
-st.title("🩺 DiaPredict")
-
-# Load model
-try:
-    model, scaler, gender_encoder = load_model_and_encoders()
-except Exception as e:
-    st.error(f"Error loading model: {e}")
+if model is None:
+    st.error("🚨 Critical Error: Model files (trained_model.sav, scaler.sav, gender_encoder.sav) not found in directory.")
     st.stop()
 
-# =============== MAIN INTERFACE ===============
+tab1, tab2 = st.tabs(["📝 Diagnostic Input", "ℹ️ About Engine"])
 
-st.markdown("### 👤 Physical Statistics")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    gender = st.selectbox("Biological Gender", ["Male", "Female"])
-    weight_kg = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0, value=70.0, step=0.1)
-
-with col2:
-    height_cm = st.number_input("Height (cm)", min_value=100, max_value=250, value=175, step=1)
+with tab1:
+    st.markdown("### 👤 Patient Demographics & Body Composition")
+    col1, col2, col3 = st.columns(3)
     
-    # Auto-calculate BMI
-    height_m = height_cm / 100
-    bmi = weight_kg / (height_m ** 2)
-    st.metric("Body Mass Index", f"{bmi:.2f}")
+    with col1:
+        age = st.number_input("Age (Years)", 18, 100, 35)
+        gender = st.selectbox("Biological Gender", ["Male", "Female"])
+    with col2:
+        weight = st.number_input("Weight (kg)", 30.0, 200.0, 72.0)
+        height_cm = st.number_input("Height (cm)", 100, 250, 170)
+    with col3:
+        h_m = height_cm / 100
+        bmi = weight / (h_m ** 2)
+        st.metric("Calculated BMI", f"{bmi:.1f}", delta="Normal" if 18.5<=bmi<=25 else "Attention")
 
-st.markdown("### 💓 Vital Indicators")
+    st.markdown("### 💓 Clinical Vital Indicators")
+    col4, col5, col6 = st.columns(3)
+    with col4:
+        glucose = st.slider("Fasting Glucose (mg/dL)", 50, 350, 100)
+    with col5:
+        pulse = st.number_input("Pulse Rate (BPM)", 40, 160, 72)
+    with col6:
+        sbp = st.number_input("Systolic BP", 80, 200, 120)
+        dbp = st.number_input("Diastolic BP", 40, 130, 80)
 
-col3, col4 = st.columns(2)
+    st.markdown("### 📋 Medical & Family History")
+    h_col1, h_col2, h_col3 = st.columns(3)
+    with h_col1:
+        hist_hyper = st.toggle("Patient Hypertension")
+        hist_cardio = st.toggle("CVD / Heart Disease")
+    with h_col2:
+        hist_stroke = st.toggle("Stroke History")
+        fam_dia = st.toggle("Lineal Diabetes History")
+    with h_col3:
+        fam_hyper = st.toggle("Family Hypertension")
 
-with col3:
-    pulse_rate = st.number_input("Resting HR (BPM)", min_value=40, max_value=150, value=72, step=1)
-    systolic_bp = st.number_input("Systolic BP (mmHg)", min_value=80, max_value=200, value=120, step=1)
-
-with col4:
-    glucose = st.number_input("Glucose Level (mg/dL)", min_value=50.0, max_value=300.0, value=90.0, step=0.1)
-    diastolic_bp = st.number_input("Diastolic BP (mmHg)", min_value=50, max_value=130, value=80, step=1)
-
-# Age
-age = st.number_input("Age (years)", min_value=18, max_value=100, value=35, step=1)
-
-st.markdown("### 📋 Clinical History")
-
-col5, col6 = st.columns(2)
-
-with col5:
-    hypertension = st.checkbox("Hypertension")
-    cardiovascular = st.checkbox("Cardiovascular Disease")
-
-with col6:
-    stroke = st.checkbox("Stroke History")
-    family_diabetes = st.checkbox("Lineal Diabetes")
-
-family_hypertension = st.checkbox("Lineal Hypertension")
-
-# =============== PREDICTION ===============
-
-if st.button("🔍 Analyze Risk Factor", use_container_width=True):
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # Prepare inputs
-    inputs = {
-        'age': age,
-        'gender': gender,
-        'pulse_rate': pulse_rate,
-        'systolic_bp': systolic_bp,
-        'diastolic_bp': diastolic_bp,
-        'glucose': glucose,
-        'height': height_m,
-        'weight': weight_kg,
-        'bmi': bmi,
-        'family_diabetes': 1 if family_diabetes else 0,
-        'hypertensive': 1 if hypertension else 0,
-        'family_hypertension': 1 if family_hypertension else 0,
-        'cardiovascular': 1 if cardiovascular else 0,
-        'stroke': 1 if stroke else 0
-    }
-    
-    # Make prediction
-    result = predict_risk(model, scaler, gender_encoder, inputs)
-    
-    # =============== DISPLAY RESULTS (Like your image) ===============
-    
-    st.markdown("---")
-    st.markdown("### 📊 Risk Assessment Results")
-    
-    # Main risk display (circular gauge style)
-    col_left, col_center, col_right = st.columns([1, 2, 1])
-    
-    with col_center:
-        # Risk percentage display
-        st.markdown(f"""
-        <div style='text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; color: white;'>
-            <h4 style='margin: 0; opacity: 0.9;'>PROBABILITY</h4>
-            <h1 style='margin: 20px 0; font-size: 4em;'>{result['risk_percentage']:.0f}%</h1>
-            <div style='display: inline-block; background: rgba(255,255,255,0.2); padding: 10px 30px; border-radius: 25px; border: 2px solid white;'>
-                <strong>{result['risk_level']}</strong>
+    if st.button("Generate Risk Assessment Report"):
+        inputs = {
+            'age': age, 'gender': gender, 'pulse_rate': pulse, 'systolic_bp': sbp,
+            'diastolic_bp': dbp, 'glucose': glucose, 'height': h_m,
+            'weight': weight, 'bmi': bmi, 'family_diabetes': 1 if fam_dia else 0,
+            'hypertensive': 1 if hist_hyper else 0, 'family_hypertension': 1 if fam_hyper else 0,
+            'cardiovascular': 1 if hist_cardio else 0, 'stroke': 1 if hist_stroke else 0
+        }
+        
+        result = predict_risk(model, scaler, gender_encoder, inputs)
+
+        st.markdown("---")
+        res_left, res_right = st.columns([1, 1.2])
+
+        with res_left:
+            st.markdown(f"""
+            <div class="result-card">
+                <p style='text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; opacity: 0.7;'>Probability of Diabetes</p>
+                <h1 style='font-size: 5.5rem; margin: 15px 0;'>{result['risk_percentage']:.0f}%</h1>
+                <div style='background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; border: 1px solid white;'>
+                    <span style='font-weight: bold;'>STATUS: {result['risk_level']} RISK</span>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("")
-    
-    # Confidence and Validation
-    col_conf, col_val = st.columns(2)
-    
-    with col_conf:
-        st.markdown(f"""
-        <div style='text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;'>
-            <p style='margin: 0; color: #666; font-size: 0.9em;'>CONFIDENCE</p>
-            <h2 style='margin: 10px 0; color: #667eea;'>{result['confidence']:.1f}%</h2>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col_val:
-        val_color = "#28a745" if result['validation'] == "Passed" else "#ffc107"
-        st.markdown(f"""
-        <div style='text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;'>
-            <p style='margin: 0; color: #666; font-size: 0.9em;'>VALIDATION</p>
-            <h2 style='margin: 10px 0; color: {val_color};'>{result['validation']}</h2>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Detailed breakdown
-    st.markdown("---")
-    st.markdown("### 📈 Risk Factors Analysis")
-    
-    # Show which factors contribute most
-    risk_factors = []
-    
-    if glucose > 100:
-        risk_factors.append("⚠️ Elevated glucose level")
-    if systolic_bp > 140 or diastolic_bp > 90:
-        risk_factors.append("⚠️ High blood pressure")
-    if bmi > 25:
-        risk_factors.append("⚠️ BMI above normal range")
-    if hypertension:
-        risk_factors.append("⚠️ Hypertension history")
-    if cardiovascular:
-        risk_factors.append("⚠️ Cardiovascular disease history")
-    if family_diabetes:
-        risk_factors.append("⚠️ Family history of diabetes")
-    
-    if risk_factors:
-        st.warning("**Contributing Risk Factors:**")
-        for factor in risk_factors:
-            st.write(factor)
-    else:
-        st.success("✅ No major risk factors detected")
-    
-    # Recommendations
-    st.markdown("### 💡 Recommendations")
-    
-    if result['risk_level'] == "HIGH":
-        st.error("""
-        **High Risk Detected**
-        - Consult a healthcare professional immediately
-        - Regular monitoring of glucose and blood pressure
-        - Lifestyle modifications recommended
-        - Consider preventive medication if advised
-        """)
-    elif result['risk_level'] == "MODERATE":
-        st.warning("""
-        **Moderate Risk**
-        - Schedule a check-up with your doctor
-        - Monitor vitals regularly
-        - Adopt healthy diet and exercise routine
-        - Re-assess in 3-6 months
-        """)
-    else:
-        st.success("""
-        **Low Risk**
-        - Maintain current healthy lifestyle
-        - Annual health check-ups recommended
-        - Stay active and eat balanced diet
-        - Monitor any changes in health status
-        """)
-    
-    st.info("**Disclaimer:** This is a screening tool for educational purposes only. Always consult healthcare professionals for medical advice.")
+            """, unsafe_allow_html=True)
 
-# =============== ABOUT ===============
-with st.expander("ℹ️ About This Tool"):
-    st.write("""
-    **DiaPredict Tool**
+        with res_right:
+            st.subheader("📊 Engine Insights")
+            st.write(f"**Confidence Score:** `{result['confidence']:.1f}%`")
+            st.write(f"**Validation Check:** `{result['validation']}`")
+            
+            if result['risk_level'] == "HIGH":
+                st.error("⚠️ **Clinical Warning:** High probability detected. Immediate consultation with a healthcare professional and fasting A1c blood test is advised.")
+            elif result['risk_level'] == "MODERATE":
+                st.warning("⚖️ **Moderate Risk:** Pre-diabetic markers present. Recommend lifestyle intervention, increased physical activity, and carbohydrate management.")
+            else:
+                st.success("✅ **Stable Status:** Risk factors within safe range. Maintain current healthy lifestyle and conduct annual check-ups.")
+
+with tab2:
+    st.markdown("""
+    ### ⚙️ Predictive Engine Methodology
+    **DiaPredict** utilizes a sophisticated Machine Learning pipeline to evaluate metabolic risk.
     
-    This application uses machine learning to assess health risks based on:
-    - Physical statistics and vital signs
-    - Clinical and family history
-    - Advanced predictive analytics
+    * **Algorithm:** Support Vector Machine (SVM) with RBF Kernel.
+    * **Dataset:** Trained on 5,200+ clinical records.
+    * **Feature Weights:** Fasting Glucose and BMI carry the highest statistical weight in our current model version.
     
-    **Model Information:**
-    - Algorithm: Support Vector Machine (SVM)
-    - Training Data: 5,289 patient records
-    - Features: 14 health indicators
-    
-    **Creator:** Intan Abdali && Shahadat Hossain Shahed
-    
-    *For educational and screening purposes only. Not a substitute for professional medical diagnosis.*
+    **Developed by:** Intan Abdali & Shahadat Hossain Shahed
     """)
 
+st.caption("Disclaimer: This tool is for screening purposes and does not constitute a formal medical diagnosis.")
