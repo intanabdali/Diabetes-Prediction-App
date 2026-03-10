@@ -106,6 +106,71 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
+    /* ========================================= */
+    /* MOBILE-FRIENDLY PROTOCOL BOXES - FIXED! */
+    /* ========================================= */
+    
+    .protocol-box {
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+    
+    /* Critical Level - High Contrast */
+    .protocol-critical {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        border-left: 5px solid #DC2626;
+        color: #7F1D1D;
+    }
+    
+    .protocol-critical b {
+        color: #991B1B !important;
+        font-weight: 700;
+    }
+    
+    /* Moderate Level - High Contrast */
+    .protocol-moderate {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        border-left: 5px solid #F59E0B;
+        color: #78350F;
+    }
+    
+    .protocol-moderate b {
+        color: #92400E !important;
+        font-weight: 700;
+    }
+    
+    /* Low Level - High Contrast */
+    .protocol-low {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        border-left: 5px solid #10B981;
+        color: #064E3B;
+    }
+    
+    .protocol-low b {
+        color: #065F46 !important;
+        font-weight: 700;
+    }
+    
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 768px) {
+        .protocol-box {
+            padding: 18px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .risk-score {
+            font-size: 60px;
+        }
+        
+        .section-header {
+            font-size: 1.1rem;
+        }
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -231,11 +296,9 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             </div>
         """, unsafe_allow_html=True)
 
-      # =================  DYNAMIC ADVISORY =================
+        # ================= DYNAMIC ADVISORY - MOBILE FRIENDLY! =================
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Adding a separator for better visual flow
-        st.markdown("<hr style='border: 0.5px solid rgba(255,255,255,0.1)'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 0.5px solid #CBD5E1; margin: 30px 0;'>", unsafe_allow_html=True)
         
         col_adv1, col_adv2 = st.columns(2)
         
@@ -269,34 +332,37 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
         with col_adv2:
             st.markdown("### 👨‍⚕️ Clinical Protocol")
             
-            # We create a "Protocol Container" using Markdown for a professional look
+            # ==========================================
+            # FIXED: Mobile-Friendly Protocol Boxes
+            # ==========================================
+            
             if level == "CRITICAL":
-                st.markdown(f"""
-                <div style="background: rgba(239, 71, 111, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #EF476F;">
-                    <b style="color:#EF476F;">IMMEDIATE ACTIONS:</b><br>
-                    1. <b>Physician Consultation:</b> Present this report to a GP or Endocrinologist within 48 hours.<br>
-                    2. <b>Diagnostic Testing:</b> Request a Laboratory HbA1c test and an Oral Glucose Tolerance Test (OGTT).<br>
-                    3. <b>Nutritional Crisis Management:</b> Adopt a 'Low Glycemic Index' diet immediately; eliminate all refined sugars.
+                st.markdown("""
+                <div class="protocol-box protocol-critical">
+                    <b>⚠️ IMMEDIATE ACTIONS:</b><br><br>
+                    <b>1. Physician Consultation:</b> Present this report to a GP or Endocrinologist within 48 hours.<br><br>
+                    <b>2. Diagnostic Testing:</b> Request a Laboratory HbA1c test and an Oral Glucose Tolerance Test (OGTT).<br><br>
+                    <b>3. Nutritional Crisis Management:</b> Adopt a 'Low Glycemic Index' diet immediately; eliminate all refined sugars.
                 </div>
                 """, unsafe_allow_html=True)
                 
             elif level == "MODERATE":
-                st.markdown(f"""
-                <div style="background: rgba(255, 209, 102, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #FFD166;">
-                    <b style="color:#FFD166;">PREVENTATIVE PROTOCOL:</b><br>
-                    1. <b>Metabolic Activation:</b> Target 150 minutes of moderate aerobic activity (brisk walking) per week.<br>
-                    2. <b>Glucose Tracking:</b> Begin a 'Sugar Journal' to identify which specific meals cause energy crashes or spikes.<br>
-                    3. <b>Fiber Integration:</b> Increase daily fiber to 25g+ to slow down glucose absorption in the bloodstream.
+                st.markdown("""
+                <div class="protocol-box protocol-moderate">
+                    <b>📋 PREVENTATIVE PROTOCOL:</b><br><br>
+                    <b>1. Metabolic Activation:</b> Target 150 minutes of moderate aerobic activity (brisk walking) per week.<br><br>
+                    <b>2. Glucose Tracking:</b> Begin a 'Sugar Journal' to identify which specific meals cause energy crashes or spikes.<br><br>
+                    <b>3. Fiber Integration:</b> Increase daily fiber to 25g+ to slow down glucose absorption in the bloodstream.
                 </div>
                 """, unsafe_allow_html=True)
                 
             else:
-                st.markdown(f"""
-                <div style="background: rgba(6, 214, 160, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #06D6A0;">
-                    <b style="color:#06D6A0;">MAINTENANCE STRATEGY:</b><br>
-                    1. <b>Annual Bio-Screening:</b> Continue yearly fasting glucose checks to maintain this healthy baseline.<br>
-                    2. <b>Hydration Focus:</b> Maintain optimal kidney function by consuming 2-3 liters of water daily.<br>
-                    3. <b>Stress Management:</b> High cortisol can spike glucose; maintain consistent sleep cycles (7-8 hours).
+                st.markdown("""
+                <div class="protocol-box protocol-low">
+                    <b>✅ MAINTENANCE STRATEGY:</b><br><br>
+                    <b>1. Annual Bio-Screening:</b> Continue yearly fasting glucose checks to maintain this healthy baseline.<br><br>
+                    <b>2. Hydration Focus:</b> Maintain optimal kidney function by consuming 2-3 liters of water daily.<br><br>
+                    <b>3. Stress Management:</b> High cortisol can spike glucose; maintain consistent sleep cycles (7-8 hours).
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -309,4 +375,3 @@ st.markdown("""
         Developed with ❤️ by the Clinical AI Team
     </div>
 """, unsafe_allow_html=True)
-
