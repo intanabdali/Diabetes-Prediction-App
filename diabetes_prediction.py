@@ -1,124 +1,101 @@
-# Importing the Dependencies
+import streamlit as st
 import numpy as np
-import pandas as py
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn import svm
-from sklearn.metrics import accuracy_score
-
-#loading the dataset in diabetes
-diabetes_dataset = py.read_csv('/content/diabetes.csv')
-
-#printing the first five rows of dataset
-diabetes_dataset.head()
-
-# number of rows and coloumns in this dataset
-diabetes_dataset.shape
-
-#getting the statistical measures of the data
-diabetes_dataset.describe()
-
-diabetes_dataset['Outcome'].value_counts()
-
-# 0 --> Non-Diabetic People 1 --> Diabetic People
-
-diabetes_dataset.groupby('Outcome').mean()
-
-# separating the data and labels
-X = diabetes_dataset.drop(columns = 'Outcome', axis=1)
-Y = diabetes_dataset['Outcome']
-
-print(X)
-print(Y)
-
-# Data Standardization
-
-scaler = StandardScaler()
-scaler.fit(X)   
-standardized_data = scaler.transform(X)
-print(standardized_data)
-
-X = standardized_data
-Y = diabetes_dataset['Outcome']
-
-
-print(X)
-print(Y)
-
-# Train Test Split
-X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size = 0.2, stratify=Y, random_state=2)
-print(X.shape, X_train.shape, X_test.shape)
-
-
-# Training The Model
-
-classifier = svm.SVC(kernel='linear')
-
-# Training the support vector machine classifier
-classifier.fit(X_train, Y_train)
-
-# Model Evaluation
-# Accuracy Score
-
-# accuracy score on the training data
-X_train_prediction = classifier.predict(X_train)
-training_data_accuracy = accuracy_score(X_train_prediction, Y_train)
-print("Accuracy score of the training data : ", training_data_accuracy)
-
-
-# accuracy score on the test data
-X_test_prediction = classifier.predict(X_test)
-test_data_accuracy = accuracy_score(X_test_prediction, Y_test)
-print("Accuracy score of the test data : ", test_data_accuracy)
-
-# Making a Predictive System
-
-input_data = (5,166,72,19,175,25.8,0.587,51)
-
-# changing the input_data to numpy array
-input_data_as_numpy_array = np.asarray(input_data)
-
-# reshape the array as we are predicting for one instance
-input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
-
-#standardize the input data
-std_data = scaler.transform(input_data_reshaped)
-print(std_data)
-
-prediction = classifier.predict(std_data)
-print(prediction)
-
-if (prediction[0] == 0):
-  print('The person is not diabetic')
-else:
-  print('The person is diabetic')
-
-
-# Saving the Trained Model
 import pickle
+import requests
 
-filename = 'trained_model.sav'
-pickle.dump(classifier, open(filename, 'wb'))
+# 1. LOAD CREDENTIALS FROM SECRETS
+API_KEY = st.secrets["FIREBASE_API_KEY"]
 
-#loading the saved model
-loaded_model = pickle.load(open('trained_model.sav', 'rb'))
+# --- FIREBASE HELPER FUNCTIONS ---
+def login_with_email_password(email, password):
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={API_KEY}"
+    payload = {"email": email, "password": password, "returnSecureToken": True}
+    response = requests.post(url, json=payload)
+    return response.json()
 
-input_data = (5,166,72,19,175,25.8,0.587,51)
+def signup_with_email_password(email, password):
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={API_KEY}"
+    payload = {"email": email, "password": password, "returnSecureToken": True}
+    response = requests.post(url, json=payload)
+    return response.json()
 
-# changing the input_data to numpy array
-input_data_as_numpy_array = np.asarray(input_data)
+# --- LOGIN UI ---
+if 'user' not in st.session_state:
+    st.title("🔐 Secure Diabetes Predictor")
+    tab1, tab2 = st.tabs(["Login", "Create Account"])
+    
+    with tab1:
+        email = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+        if st.button("Log In"):
+            res = login_with_email_password(email, password)
+            if "idToken" in res:
+                st.session_state.user = res['email']
+                st.rerun()
+            else:
+                st.error("Invalid Login. Please check your email/password.")
+    
+    with tab2:
+        new_email = st.text_input("New Email")
+        new_pass = st.text_input("New Password", type="password")
+        if st.button("Sign Up"):
+            res = signup_with_email_password(new_email, new_pass)
+            if "idToken" in res:
+                st.success("Account created! You can now log in.")
+            else:
+                st.error(f"Error: {res.get('error', {}).get('message')}")
+    st.stop() # Stops the rest of the code until logged in
 
-# reshape the array as we are predicting for one instance
-input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+# --- LOGGED IN CONTENT ---
+st.sidebar.write(f"Logged in as: {st.session_state.user}")
+if st.sidebar.button("Logout"):
+    del st.session_state.user
+    st.rerun()
 
-#standardize the input data
-std_data = scaler.transform(input_data_reshaped)
-print(std_data)
+# 2. LOAD YOUR SAVED MODEL AND SCALER
+# Note: You need to save your 'scaler' object using pickle too, just like the model!
+try:
+    loaded_model = pickle.load(open('trained_model.sav', 'rb'))
+    # Make sure to upload 'scaler.sav' to your GitHub repo as well
+    scaler = pickle.load(open('scaler.sav', 'rb')) 
+except Exception as e:
+    st.error("Model files not found. Please upload 'trained_model.sav' and 'scaler.sav' to GitHub.")
+    st.stop()
 
-prediction = loaded_model.predict(std_data)
-print(prediction)
+st.title('Diabetes Prediction App')
 
-if (prediction[0] == 0):
-  print('The person is not diabetic')
-else:
-  print('The person is diabetic')
+# 3. GET INPUT FROM USER VIA UI
+col1, col2 = st.columns(2)
+
+with col1:
+    Pregnancies = st.number_input('Number of Pregnancies', min_value=0, step=1)
+    Glucose = st.number_input('Glucose Level', min_value=0)
+    BloodPressure = st.number_input('Blood Pressure value', min_value=0)
+    SkinThickness = st.number_input('Skin Thickness value', min_value=0)
+
+with col2:
+    Insulin = st.number_input('Insulin Level', min_value=0)
+    BMI = st.number_input('BMI value', format="%.1f")
+    DiabetesPedigreeFunction = st.number_input('Diabetes Pedigree Function value', format="%.3f")
+    Age = st.number_input('Age of the Person', min_value=0, step=1)
+
+# Code for Prediction
+diagnosis = ''
+
+if st.button('Test Result'):
+    # Prepare input data
+    input_data = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
+    input_data_as_numpy_array = np.asarray(input_data).reshape(1,-1)
+    
+    # Standardize the input
+    std_data = scaler.transform(input_data_as_numpy_array)
+    
+    # Predict
+    prediction = loaded_model.predict(std_data)
+    
+    if (prediction[0] == 1):
+        diagnosis = 'The person is diabetic'
+        st.error(diagnosis)
+    else:
+        diagnosis = 'The person is not diabetic'
+        st.success(diagnosis)
