@@ -540,6 +540,7 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
 st.markdown("""
     <div style="margin-top: 100px; padding: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #94A3B8;">
         DiaPredict Pro • Secure HIPAA-Aligned Interface<br>
-        Developed with ❤️ by the Clinical AI Team
+        Developed with ❤️ by the Intan Abdali & Shahadat Hossain Shahed
     </div>
 """, unsafe_allow_html=True)
+
