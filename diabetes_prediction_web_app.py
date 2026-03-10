@@ -54,10 +54,9 @@ st.markdown("""
     }
 
     /* ================================== */
-    /* FIX 1: TOGGLE BUTTON VISIBILITY    */
+    /* TOGGLE BUTTON VISIBILITY           */
     /* ================================== */
     
-    /* Make toggle switches more visible */
     .stCheckbox {
         background: #F8FAFC;
         padding: 12px 16px;
@@ -72,7 +71,6 @@ st.markdown("""
         background: #F0F9FF;
     }
     
-    /* Make toggle switch itself bigger and more visible */
     .stCheckbox > label {
         display: flex !important;
         align-items: center !important;
@@ -82,7 +80,6 @@ st.markdown("""
         font-size: 15px !important;
     }
     
-    /* Enhance the actual toggle button */
     .stCheckbox > label > div[data-baseweb="checkbox"] {
         width: 50px !important;
         height: 28px !important;
@@ -96,7 +93,6 @@ st.markdown("""
         border-color: #0077B6 !important;
     }
     
-    /* Make toggle circle bigger */
     .stCheckbox > label > div[data-baseweb="checkbox"] > div {
         width: 22px !important;
         height: 22px !important;
@@ -104,7 +100,7 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
     }
 
-    /* Input Fields Customization */
+    /* Input Fields */
     .stNumberInput div div input, .stSelectbox div div div {
         background-color: #F8FAFC !important;
         border: 1px solid #CBD5E1 !important;
@@ -112,7 +108,7 @@ st.markdown("""
         color: #1E293B !important;
     }
 
-    /* Hero Prediction Button */
+    /* Button */
     .stButton>button {
         background: linear-gradient(90deg, #0077B6 0%, #00B4D8 100%);
         color: white;
@@ -151,72 +147,112 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Metric Label Fixes */
     label p {
         color: #475569 !important;
         font-weight: 600 !important;
     }
 
     /* ===================================== */
-    /* FIX 2: CLINICAL INSIGHTS READABILITY  */
+    /* FIX: CLINICAL INSIGHTS - DARK TEXT!   */
     /* ===================================== */
     
-    /* Streamlit native components styling */
-    .stAlert {
-        padding: 16px 20px !important;
-        border-radius: 12px !important;
-        margin-bottom: 16px !important;
-        border-left: 4px solid !important;
-        font-size: 15px !important;
-        line-height: 1.6 !important;
-    }
+    /* Override ALL Streamlit alert text colors to be DARK */
     
-    /* Error alerts (Critical Glucose) */
-    .stAlert[data-baseweb="notification"] > div[role="alert"] {
-        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
-        color: #7F1D1D !important;
-        border-left-color: #DC2626 !important;
-    }
-    
-    /* Warning alerts (Pre-diabetic) */
-    .element-container:has(.stAlert) .stAlert {
-        font-weight: 500 !important;
-    }
-    
-    /* Success alerts (Healthy) */
+    /* Success alerts - DARK GREEN TEXT */
     .stSuccess {
         background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%) !important;
-        color: #064E3B !important;
         border-left: 4px solid #10B981 !important;
+        padding: 16px 20px !important;
+        border-radius: 12px !important;
     }
     
-    /* Info alerts (Genetic info) */
-    .stInfo {
+    .stSuccess > div {
+        color: #064E3B !important;  /* Very dark green */
+    }
+    
+    .stSuccess [data-testid="stMarkdownContainer"] {
+        color: #064E3B !important;
+    }
+    
+    .stSuccess [data-testid="stMarkdownContainer"] p,
+    .stSuccess [data-testid="stMarkdownContainer"] strong,
+    .stSuccess [data-testid="stMarkdownContainer"] b {
+        color: #064E3B !important;  /* Force dark green */
+        font-weight: 600 !important;
+    }
+    
+    /* Error alerts - DARK RED TEXT */
+    .stAlert[kind="error"],
+    div[data-baseweb="notification"][kind="error"] {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
+        border-left: 4px solid #DC2626 !important;
+    }
+    
+    .stAlert[kind="error"] > div,
+    .stAlert[kind="error"] [data-testid="stMarkdownContainer"],
+    .stAlert[kind="error"] [data-testid="stMarkdownContainer"] p,
+    .stAlert[kind="error"] [data-testid="stMarkdownContainer"] strong,
+    .stAlert[kind="error"] [data-testid="stMarkdownContainer"] b {
+        color: #7F1D1D !important;  /* Very dark red */
+        font-weight: 600 !important;
+    }
+    
+    /* Warning alerts - DARK ORANGE TEXT */
+    .stAlert[kind="warning"],
+    div[data-baseweb="notification"][kind="warning"] {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
+        border-left: 4px solid #F59E0B !important;
+    }
+    
+    .stAlert[kind="warning"] > div,
+    .stAlert[kind="warning"] [data-testid="stMarkdownContainer"],
+    .stAlert[kind="warning"] [data-testid="stMarkdownContainer"] p,
+    .stAlert[kind="warning"] [data-testid="stMarkdownContainer"] strong,
+    .stAlert[kind="warning"] [data-testid="stMarkdownContainer"] b {
+        color: #78350F !important;  /* Very dark brown */
+        font-weight: 600 !important;
+    }
+    
+    /* Info alerts - DARK BLUE TEXT */
+    .stAlert[kind="info"],
+    div[data-baseweb="notification"][kind="info"] {
         background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
-        color: #1E3A8A !important;
         border-left: 4px solid #3B82F6 !important;
     }
     
-    /* Caption text - make darker and bigger */
-    .stAlert .stCaptionContainer,
-    .stAlert [data-testid="stMarkdownContainer"] p {
+    .stAlert[kind="info"] > div,
+    .stAlert[kind="info"] [data-testid="stMarkdownContainer"],
+    .stAlert[kind="info"] [data-testid="stMarkdownContainer"] p,
+    .stAlert[kind="info"] [data-testid="stMarkdownContainer"] strong,
+    .stAlert[kind="info"] [data-testid="stMarkdownContainer"] b {
+        color: #1E3A8A !important;  /* Very dark blue */
+        font-weight: 600 !important;
+    }
+    
+    /* Caption text - INHERIT dark color from parent */
+    .stCaptionContainer,
+    div[data-testid="stCaptionContainer"],
+    .caption,
+    [class*="caption"] {
         color: inherit !important;
+        opacity: 1 !important;
         font-size: 14px !important;
         font-weight: 500 !important;
         line-height: 1.6 !important;
         margin-top: 8px !important;
     }
     
-    /* Bold text in alerts */
-    .stAlert strong,
-    .stAlert b {
+    /* Force all text in alerts to be visible */
+    .stSuccess p,
+    .stAlert p,
+    div[data-baseweb="notification"] p {
         color: inherit !important;
-        font-weight: 700 !important;
-        filter: brightness(0.8);
+        font-size: 14px !important;
+        line-height: 1.6 !important;
     }
 
     /* ========================================= */
-    /* MOBILE-FRIENDLY PROTOCOL BOXES - FIXED!   */
+    /* PROTOCOL BOXES                            */
     /* ========================================= */
     
     .protocol-box {
@@ -227,7 +263,6 @@ st.markdown("""
         line-height: 1.7;
     }
     
-    /* Critical Level - High Contrast */
     .protocol-critical {
         background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
         border-left: 5px solid #DC2626;
@@ -239,7 +274,6 @@ st.markdown("""
         font-weight: 700;
     }
     
-    /* Moderate Level - High Contrast */
     .protocol-moderate {
         background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
         border-left: 5px solid #F59E0B;
@@ -251,7 +285,6 @@ st.markdown("""
         font-weight: 700;
     }
     
-    /* Low Level - High Contrast */
     .protocol-low {
         background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
         border-left: 5px solid #10B981;
@@ -263,7 +296,7 @@ st.markdown("""
         font-weight: 700;
     }
     
-    /* Mobile Responsive Adjustments */
+    /* Mobile Responsive */
     @media (max-width: 768px) {
         .protocol-box {
             padding: 18px;
@@ -279,7 +312,6 @@ st.markdown("""
             font-size: 1.1rem;
         }
         
-        /* Make toggles even more visible on mobile */
         .stCheckbox {
             padding: 14px 18px;
             margin-bottom: 12px;
@@ -289,7 +321,6 @@ st.markdown("""
             font-size: 16px !important;
         }
         
-        /* Bigger toggle switch on mobile */
         .stCheckbox > label > div[data-baseweb="checkbox"] {
             width: 55px !important;
             height: 32px !important;
@@ -300,13 +331,14 @@ st.markdown("""
             height: 26px !important;
         }
         
-        /* Mobile alert text */
-        .stAlert {
+        .stAlert,
+        .stSuccess {
             font-size: 14px !important;
             padding: 14px 16px !important;
         }
         
-        .stAlert [data-testid="stMarkdownContainer"] p {
+        .stCaptionContainer,
+        div[data-testid="stCaptionContainer"] {
             font-size: 13px !important;
         }
     }
@@ -426,7 +458,7 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
         else:
             level, color, icon = "CRITICAL", "#EF476F", "🚨"
 
-        # --- PREMIUM RESULT DISPLAY ---
+        # --- RESULT DISPLAY ---
         st.markdown(f"""
             <div class="result-container">
                 <p style="color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Probability Assessment</p>
@@ -436,7 +468,7 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             </div>
         """, unsafe_allow_html=True)
 
-        # ================= DYNAMIC ADVISORY - FULLY MOBILE FRIENDLY! =================
+        # ================= ADVISORY - WITH DARK TEXT! =================
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("<hr style='border: 0.5px solid #CBD5E1; margin: 30px 0;'>", unsafe_allow_html=True)
         
@@ -451,10 +483,10 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
                 st.caption("🚨 **Hyperglycemia detected.** Levels above 125 mg/dL in a fasting state are primary indicators for Type 2 Diabetes.")
             elif glucose > 100:
                 st.warning(f"**Pre-diabetic Range:** {glucose} mg/dL")
-                st.caption("⚠️ Your glucose is in the 'Impaired Fasting Glucose' range. Early intervention can reverse this trend.")
+                st.caption("⚠️ Your glucose is in the 'Impaired Fasting Glucose' range. **Early intervention can reverse this trend.**")
             else:
                 st.success("**Healthy Glucose Metabolism**")
-                st.caption("✅ Your fasting blood sugar is within the optimal clinical range (70-100 mg/dL).")
+                st.caption("✅ **Your fasting blood sugar is within the optimal clinical range (70-100 mg/dL).**")
 
             # --- BMI Observation ---
             if bmi > 30:
@@ -471,10 +503,6 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
 
         with col_adv2:
             st.markdown("### 👨‍⚕️ Clinical Protocol")
-            
-            # ==========================================
-            # FIXED: Mobile-Friendly Protocol Boxes
-            # ==========================================
             
             if level == "CRITICAL":
                 st.markdown("""
