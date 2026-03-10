@@ -53,6 +53,57 @@ st.markdown("""
         gap: 10px;
     }
 
+    /* ================================== */
+    /* FIX 1: TOGGLE BUTTON VISIBILITY    */
+    /* ================================== */
+    
+    /* Make toggle switches more visible */
+    .stCheckbox {
+        background: #F8FAFC;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 2px solid #E2E8F0;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .stCheckbox:hover {
+        border-color: #00B4D8;
+        background: #F0F9FF;
+    }
+    
+    /* Make toggle switch itself bigger and more visible */
+    .stCheckbox > label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        font-weight: 600 !important;
+        color: #1E293B !important;
+        font-size: 15px !important;
+    }
+    
+    /* Enhance the actual toggle button */
+    .stCheckbox > label > div[data-baseweb="checkbox"] {
+        width: 50px !important;
+        height: 28px !important;
+        border-radius: 14px !important;
+        background-color: #CBD5E1 !important;
+        border: 2px solid #94A3B8 !important;
+    }
+    
+    .stCheckbox > label > div[data-baseweb="checkbox"][aria-checked="true"] {
+        background-color: #00B4D8 !important;
+        border-color: #0077B6 !important;
+    }
+    
+    /* Make toggle circle bigger */
+    .stCheckbox > label > div[data-baseweb="checkbox"] > div {
+        width: 22px !important;
+        height: 22px !important;
+        background-color: white !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    }
+
     /* Input Fields Customization */
     .stNumberInput div div input, .stSelectbox div div div {
         background-color: #F8FAFC !important;
@@ -106,8 +157,66 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
+    /* ===================================== */
+    /* FIX 2: CLINICAL INSIGHTS READABILITY  */
+    /* ===================================== */
+    
+    /* Streamlit native components styling */
+    .stAlert {
+        padding: 16px 20px !important;
+        border-radius: 12px !important;
+        margin-bottom: 16px !important;
+        border-left: 4px solid !important;
+        font-size: 15px !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Error alerts (Critical Glucose) */
+    .stAlert[data-baseweb="notification"] > div[role="alert"] {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%) !important;
+        color: #7F1D1D !important;
+        border-left-color: #DC2626 !important;
+    }
+    
+    /* Warning alerts (Pre-diabetic) */
+    .element-container:has(.stAlert) .stAlert {
+        font-weight: 500 !important;
+    }
+    
+    /* Success alerts (Healthy) */
+    .stSuccess {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%) !important;
+        color: #064E3B !important;
+        border-left: 4px solid #10B981 !important;
+    }
+    
+    /* Info alerts (Genetic info) */
+    .stInfo {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
+        color: #1E3A8A !important;
+        border-left: 4px solid #3B82F6 !important;
+    }
+    
+    /* Caption text - make darker and bigger */
+    .stAlert .stCaptionContainer,
+    .stAlert [data-testid="stMarkdownContainer"] p {
+        color: inherit !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        line-height: 1.6 !important;
+        margin-top: 8px !important;
+    }
+    
+    /* Bold text in alerts */
+    .stAlert strong,
+    .stAlert b {
+        color: inherit !important;
+        font-weight: 700 !important;
+        filter: brightness(0.8);
+    }
+
     /* ========================================= */
-    /* MOBILE-FRIENDLY PROTOCOL BOXES - FIXED! */
+    /* MOBILE-FRIENDLY PROTOCOL BOXES - FIXED!   */
     /* ========================================= */
     
     .protocol-box {
@@ -168,6 +277,37 @@ st.markdown("""
         
         .section-header {
             font-size: 1.1rem;
+        }
+        
+        /* Make toggles even more visible on mobile */
+        .stCheckbox {
+            padding: 14px 18px;
+            margin-bottom: 12px;
+        }
+        
+        .stCheckbox > label {
+            font-size: 16px !important;
+        }
+        
+        /* Bigger toggle switch on mobile */
+        .stCheckbox > label > div[data-baseweb="checkbox"] {
+            width: 55px !important;
+            height: 32px !important;
+        }
+        
+        .stCheckbox > label > div[data-baseweb="checkbox"] > div {
+            width: 26px !important;
+            height: 26px !important;
+        }
+        
+        /* Mobile alert text */
+        .stAlert {
+            font-size: 14px !important;
+            padding: 14px 16px !important;
+        }
+        
+        .stAlert [data-testid="stMarkdownContainer"] p {
+            font-size: 13px !important;
         }
     }
 
@@ -254,13 +394,13 @@ st.markdown('<div class="section-header">📋 Clinical History Review</div>', un
 
 hcol1, hcol2, hcol3 = st.columns(3)
 with hcol1:
-    hypertension = st.toggle("History of Hypertension")
-    cardiovascular = st.toggle("CVD History")
+    hypertension = st.checkbox("History of Hypertension")
+    cardiovascular = st.checkbox("CVD History")
 with hcol2:
-    stroke = st.toggle("History of Stroke")
-    family_diabetes = st.toggle("Genetic Diabetes History")
+    stroke = st.checkbox("History of Stroke")
+    family_diabetes = st.checkbox("Genetic Diabetes History")
 with hcol3:
-    family_hypertension = st.toggle("Genetic Hypertension")
+    family_hypertension = st.checkbox("Genetic Hypertension")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -296,7 +436,7 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             </div>
         """, unsafe_allow_html=True)
 
-        # ================= DYNAMIC ADVISORY - MOBILE FRIENDLY! =================
+        # ================= DYNAMIC ADVISORY - FULLY MOBILE FRIENDLY! =================
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("<hr style='border: 0.5px solid #CBD5E1; margin: 30px 0;'>", unsafe_allow_html=True)
         
@@ -308,7 +448,7 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             # --- Glucose Observation ---
             if glucose > 125:
                 st.error(f"**Critical Glucose:** {glucose} mg/dL")
-                st.caption("🚨 *Hyperglycemia detected.* Levels above 125 mg/dL in a fasting state are primary indicators for Type 2 Diabetes.")
+                st.caption("🚨 **Hyperglycemia detected.** Levels above 125 mg/dL in a fasting state are primary indicators for Type 2 Diabetes.")
             elif glucose > 100:
                 st.warning(f"**Pre-diabetic Range:** {glucose} mg/dL")
                 st.caption("⚠️ Your glucose is in the 'Impaired Fasting Glucose' range. Early intervention can reverse this trend.")
@@ -319,15 +459,15 @@ if st.button("🚀 GENERATE PREDICTIVE REPORT"):
             # --- BMI Observation ---
             if bmi > 30:
                 st.warning(f"**Weight Factor: Obesity (BMI {bmi:.1f})**")
-                st.caption("⚖️ High BMI increases insulin resistance, making it harder for your body to regulate blood sugar effectively.")
+                st.caption("⚖️ **High BMI increases insulin resistance,** making it harder for your body to regulate blood sugar effectively.")
             elif bmi > 25:
                 st.info(f"**Weight Factor: Overweight (BMI {bmi:.1f})**")
-                st.caption("🏃 Slight elevation in BMI detected. Modest weight loss (5-7%) can significantly reduce diabetes risk.")
+                st.caption("🏃 Slight elevation in BMI detected. **Modest weight loss (5-7%) can significantly reduce diabetes risk.**")
 
             # --- Genetic Observation ---
             if family_diabetes:
                 st.info("**Genetic Predisposition: Present**")
-                st.caption("🧬 A lineal history of diabetes increases your baseline risk. Environmental factors (diet/exercise) are now your primary defense.")
+                st.caption("🧬 **A lineal history of diabetes increases your baseline risk.** Environmental factors (diet/exercise) are now your primary defense.")
 
         with col_adv2:
             st.markdown("### 👨‍⚕️ Clinical Protocol")
