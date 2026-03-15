@@ -385,7 +385,7 @@ def show_main_app():
                 <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpeg' 
                      style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
                             border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
-                <div style='color: #064E3B; font-weight: 500; font-size: 16px;'>Shahadat Hossain Shahed</div>
+                <div style='color: #064E3B; font-weight: 700; font-size: 15px;'>Shahadat Hossain Shahed</div>
             </div>
         """, unsafe_allow_html=True)
         
