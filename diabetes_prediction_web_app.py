@@ -342,7 +342,7 @@ def show_main_app():
         st.stop()
     
     # Sidebar with user info
- # ================= SIDEBAR =================
+# ================= SIDEBAR =================
 with st.sidebar:
     st.markdown("""
         <div style='text-align:center; padding-bottom:20px;'>
@@ -352,22 +352,40 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.markdown("---")
+    
+    # User info (if logged in)
+    user = get_current_user()
+    if user:
+        st.markdown(f"### 👤 {user.get('display_name', 'User')}")
+        st.caption(f"📧 {user['email']}")
+        
+        if st.button("🚪 Logout", use_container_width=True):
+            logout()
+            st.rerun()
+    
+    st.markdown("---")
     st.markdown("### 👨‍⚕️ Research Leads")
     
-    # Intan Abdali with photo
+    # Intan Abdali with circular photo
     st.markdown("""
-        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; background: #D1FAE5; border-radius: 12px; margin-bottom: 12px;'>
+        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
+                    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+                    border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
             <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpg' 
-                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #10B981;'/>
+                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                        border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
             <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>Intan Abdali</div>
         </div>
     """, unsafe_allow_html=True)
     
-    # S.H. Shahed with photo
+    # S.H. Shahed with circular photo
     st.markdown("""
-        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; background: #D1FAE5; border-radius: 12px; margin-bottom: 12px;'>
+        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
+                    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+                    border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
             <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpg' 
-                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #10B981;'/>
+                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                        border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
             <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>S.H. Shahed</div>
         </div>
     """, unsafe_allow_html=True)
