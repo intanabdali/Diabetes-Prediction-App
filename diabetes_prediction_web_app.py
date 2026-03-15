@@ -342,15 +342,37 @@ def show_main_app():
         st.stop()
     
     # Sidebar with user info
-    with st.sidebar:
-        st.markdown("""
-            <div style='text-align:center; padding-bottom:20px;'>
-                <h1 style='color:#00B4D8; font-size: 32px;'>🩺 DiaPredict</h1>
-                <p style='color:#64748B;'>Clinical Risk Intelligence v3.0</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("---")
+ # ================= SIDEBAR =================
+with st.sidebar:
+    st.markdown("""
+        <div style='text-align:center; padding-bottom:20px;'>
+            <h1 style='color:#00B4D8; font-size: 32px;'>🩺 DiaPredict</h1>
+            <p style='color:#64748B;'>Clinical Risk Intelligence v3.0</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("### 👨‍⚕️ Research Leads")
+    
+    # Intan Abdali with photo
+    st.markdown("""
+        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; background: #D1FAE5; border-radius: 12px; margin-bottom: 12px;'>
+            <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpg' 
+                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #10B981;'/>
+            <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>Intan Abdali</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # S.H. Shahed with photo
+    st.markdown("""
+        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; background: #D1FAE5; border-radius: 12px; margin-bottom: 12px;'>
+            <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpg' 
+                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #10B981;'/>
+            <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>S.H. Shahed</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.info("💡 **Clinical Note:** Predictive models are most accurate when using fasting glucose data collected within the last 24 hours.")
         
         # User info
         user = get_current_user()
