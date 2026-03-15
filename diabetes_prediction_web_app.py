@@ -370,7 +370,7 @@ def show_main_app():
             <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
                         background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
                         border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
-                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpg' 
+                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpeg' 
                      style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
                             border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
                 <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>Intan Abdali</div>
@@ -382,7 +382,7 @@ def show_main_app():
             <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
                         background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
                         border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
-                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpg' 
+                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpeg' 
                      style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
                             border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
                 <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>S.H. Shahed</div>
