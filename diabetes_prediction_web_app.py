@@ -341,58 +341,18 @@ def show_main_app():
         st.error("⚠️ System Offline: Model synchronization failed.")
         st.stop()
     
-    # Sidebar with user info
-# ================= SIDEBAR =================
-with st.sidebar:
-    st.markdown("""
-        <div style='text-align:center; padding-bottom:20px;'>
-            <h1 style='color:#00B4D8; font-size: 32px;'>🩺 DiaPredict</h1>
-            <p style='color:#64748B;'>Clinical Risk Intelligence v3.0</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # User info (if logged in)
-    user = get_current_user()
-    if user:
-        st.markdown(f"### 👤 {user.get('display_name', 'User')}")
-        st.caption(f"📧 {user['email']}")
+    # ================= SIDEBAR =================
+    with st.sidebar:
+        st.markdown("""
+            <div style='text-align:center; padding-bottom:20px;'>
+                <h1 style='color:#00B4D8; font-size: 32px;'>🩺 DiaPredict</h1>
+                <p style='color:#64748B;'>Clinical Risk Intelligence v3.0</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        if st.button("🚪 Logout", use_container_width=True):
-            logout()
-            st.rerun()
-    
-    st.markdown("---")
-    st.markdown("### 👨‍⚕️ Research Leads")
-    
-    # Intan Abdali with circular photo
-    st.markdown("""
-        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
-                    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
-                    border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
-            <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpg' 
-                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
-                        border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
-            <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>Intan Abdali</div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # S.H. Shahed with circular photo
-    st.markdown("""
-        <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
-                    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
-                    border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
-            <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpg' 
-                 style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
-                        border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
-            <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>S.H. Shahed</div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.info("💡 **Clinical Note:** Predictive models are most accurate when using fasting glucose data collected within the last 24 hours.")
+        st.markdown("---")
         
-        # User info
+        # User info (if logged in)
         user = get_current_user()
         if user:
             st.markdown(f"### 👤 {user.get('display_name', 'User')}")
@@ -404,8 +364,30 @@ with st.sidebar:
         
         st.markdown("---")
         st.markdown("### 👨‍⚕️ Research Leads")
-        st.success("**Intan Abdali**")
-        st.success("**S.H. Shahed**")
+        
+        # Intan Abdali with circular photo
+        st.markdown("""
+            <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
+                        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+                        border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/intan_photo.jpg' 
+                     style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                            border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
+                <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>Intan Abdali</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # S.H. Shahed with circular photo
+        st.markdown("""
+            <div style='display: flex; align-items: center; gap: 15px; padding: 12px; 
+                        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); 
+                        border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+                <img src='https://raw.githubusercontent.com/intanabdali/Diabetes-Prediction-App/main/shahed_photo.jpg' 
+                     style='width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                            border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.2);'/>
+                <div style='color: #064E3B; font-weight: 700; font-size: 16px;'>S.H. Shahed</div>
+            </div>
+        """, unsafe_allow_html=True)
         
         st.info("💡 **Clinical Note:** Predictive models are most accurate when using fasting glucose data collected within the last 24 hours.")
     
