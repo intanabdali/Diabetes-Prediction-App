@@ -1,11 +1,9 @@
 # auth_ui.py
 # Authentication UI Components
-
 import streamlit as st
-from firebase_auth import FirebaseAuth
 from datetime import datetime
 
-def show_login_page(firebase_auth):
+def show_login_page(firebase_auth=None):
     """Display login/signup page"""
     
     # Header
@@ -40,7 +38,7 @@ def show_login_page(firebase_auth):
                     st.warning("⚠️ Please enter both email and password")
             
             if forgot:
-                pass  # Static - no action
+                st.warning("⚠️ Password reset is currently unavailable")
     
     with tab2:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -59,4 +57,4 @@ def show_login_page(firebase_auth):
             submit = st.form_submit_button("Create Account", use_container_width=True)
             
             if submit:
-                pass  # Static - no action
+                st.warning("⚠️ Account registration is currently unavailable")
