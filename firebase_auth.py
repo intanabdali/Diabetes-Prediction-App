@@ -1,5 +1,6 @@
 # firebase_auth.py
 # Firebase Authentication Module for DiaPredict
+# Copy this entire file into GitHub
 
 import streamlit as st
 import requests
@@ -162,8 +163,35 @@ def init_session_state():
 
 
 def is_logged_in():
-    """Always returns False - login disabled"""
-    return False
+    """Check if user is logged in"""
+    if st.session_state.user is None or st.session_state.token is None:
+        return False
+    
+    # Check token expiry
+    if st.session_state.login_time:
+        time_diff = datetime.now() - st.session_state.login_time
+        if time_diff > timedelta(minutes=55):
+            # Refresh token
+            try:
+                auth = FirebaseAuth(
+                    st.secrets["FIREBASE_API_KEY"],
+                    st.secrets["FIREBASE_AUTH_DOMAIN"],
+                    st.secrets["FIREBASE_PROJECT_ID"]
+                )
+                result = auth.refresh_token(st.session_state.refresh_token)
+                
+                if result['success']:
+                    st.session_state.token = result['token']
+                    st.session_state.refresh_token = result['refresh_token']
+                    st.session_state.login_time = datetime.now()
+                else:
+                    logout()
+                    return False
+            except:
+                logout()
+                return False
+    
+    return True
 
 
 def logout():
